@@ -50,10 +50,40 @@
     </div>
 
     <div style="text-align:center; margin-top:32px;">
-        <button class="btn btn-outline" style="width:auto; padding:8px 16px;" @click="lang = lang==='zh'?'en':'ms'; localStorage.setItem('lang', lang); window.location.reload();">
-            🌐 <span x-text="lang.toUpperCase()"></span>
-        </button>
+        <!-- 语言选择器 -->
+        <div x-data="{ open: false }" class="dropdown" style="display:inline-block; position:relative;">
+            <button class="btn btn-outline" style="width:auto; padding:8px 16px;" @click="open = !open">
+                🌐 <span x-text="lang.toUpperCase()"></span> ▼
+            </button>
+            <div x-show="open" 
+                 @click.away="open = false"
+                 x-transition
+                 style="position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); min-width:120px; z-index:1000; margin-bottom:8px;">
+                <button @click="setLang('zh'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'zh' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇨🇳 中文
+                </button>
+                <button @click="setLang('en'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'en' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇬🇧 English
+                </button>
+                <button @click="setLang('ms'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'ms' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇲🇾 Bahasa Melayu
+                </button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function setLang(newLang) {
+            localStorage.setItem('lang', newLang);
+            window.location.reload();
+        }
+    </script>
 
     <!-- PWA Service Worker 注册 -->
     <script>

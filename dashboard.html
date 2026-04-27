@@ -85,10 +85,33 @@
 
     <!-- 底部导航 -->
     <div class="bottom-nav">
-        <div class="nav-item active"> 首页</div>
-        <div class="nav-item">📋 任务</div>
-        <div class="nav-item" @click="switchLang(lang==='zh'?'en':'ms')"> <span x-text="lang"></span></div>
-        <div class="nav-item"> <span x-text="role"></span></div>
+        <div class="nav-item active">🏠 <span x-text="t('dashboard')"></span></div>
+        <div class="nav-item">📋 <span x-text="t('report')"></span></div>
+        <!-- 语言选择器 -->
+        <div class="nav-item" style="position:relative;" x-data="{ open: false }">
+            <span @click="open = !open" style="cursor:pointer;">🌐 <span x-text="lang.toUpperCase()"></span></span>
+            <div x-show="open" 
+                 @click.away="open = false"
+                 x-transition
+                 style="position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); min-width:120px; z-index:1000; margin-bottom:8px;">
+                <button @click="switchLang('zh'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'zh' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇨🇳 中文
+                </button>
+                <button @click="switchLang('en'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'en' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇬🇧 English
+                </button>
+                <button @click="switchLang('ms'); open = false" 
+                        style="width:100%; padding:10px 16px; text-align:left; background:none; border:none; cursor:pointer; font-size:14px;"
+                        :style="lang === 'ms' ? 'background:var(--primary-light); color:var(--primary);' : ''">
+                    🇲🇾 Bahasa Melayu
+                </button>
+            </div>
+        </div>
+        <div class="nav-item">👤 <span x-text="role"></span></div>
     </div>
 
     <!-- 核心数据与逻辑 -->
