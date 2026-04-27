@@ -103,7 +103,7 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-2 scale-95"
-                 class="lang-dropdown lang-dropdown-bottom">
+                 class="lang-dropdown">
                 <button @click="switchLang('zh'); langOpen = false" 
                         class="lang-option"
                         :class="{ 'active': lang === 'zh' }">
@@ -165,11 +165,6 @@
             z-index: 1000;
             overflow: hidden;
             backdrop-filter: blur(8px);
-        }
-        
-        .lang-dropdown-bottom {
-            bottom: auto;
-            top: calc(100% + 8px);
         }
         
         .lang-option {
