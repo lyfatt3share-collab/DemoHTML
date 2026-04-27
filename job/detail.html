@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>任务详情</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+</head>
+<body x-data="detailData"
+      x-init="initDetail()"
+      style="padding-bottom:100px;">
+    <!-- 顶部栏 -->
+    <div class="header">
+        <button class="btn btn-outline" style="width:auto; padding:6px 10px;" onclick="history.back()">←</button>
+        <strong>任务详情</strong>
+        <span class="tag" :class="status" x-text="statusNames[status] || status"></span>
+    </div>
+
+    <!-- ✅ 车辆 & 车主信息卡片 -->
+    <div class="card">
+        <h2 style="margin-bottom:6px;"> B 1234 ABC</h2>
+        <p style="color:var(--text-secondary); margin-bottom:10px;">Honda City · White · SUV</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border);">
+            <span style="font-size:14px;"> <span x-text="ownerName"></span></span>
+            <!-- 📞 点击可直接调起手机拨号 -->
+            <a :href="'tel:' + ownerPhone" style="color:var(--primary); font-size:14px; font-weight:500; text-decoration:none;">
+                📞 <span x-text="ownerPhone"></span>
+            </a>
+        </div>
+    </div>
+
+    <!--  Worker: 检查清单 -->
+    <template x-if="role === 'worker' && status === 'inspection'">
+        <div class="card">
+            <h3 style="margin-bottom:12px;">✅ 检查清单</h3>
+            <label style="display:flex; gap:8px; margin-bottom:10px; align-items:center;"><input type="checkbox" x-model="checklist.accept" disabled> 接受订单</label>
+            <label style="display:flex; gap:8px; margin-bottom:10px; align-items:center;"><input type="checkbox" x-model="checklist.scratch"> 记录划痕/损伤 <button class="btn btn-outline" style="width:auto; padding:4px 8px; font-size:12px;">📷</button></label>
+            <label style="display:flex; gap:8px; margin-bottom:10px; align-items:center;"><input type="checkbox" x-model="checklist.loose"> 检查松动部件 <button class="btn btn-outline" style="width:auto; padding:4px 8px; font-size:12px;">📷</button></label>
+            <label style="display:flex; gap:8px; margin-bottom:10px; align-items:center;"><input type="checkbox" x-model="checklist.dirt"> 重污渍评估 <button class="btn btn-outline" style="width:auto; padding:4px 8px; font-size:12px;">📷</button></label>
+
+            <button class="btn" style="background:var(--status-exception); margin-top:16px;" @click="status='exception'">⚠️ 标记异常</button>
+            <button class="btn" :disabled="!isDone()" @click="status='washing'" style="margin-top:12px;">🚀 开始清洗</button>
+        </div>
+    </template>
+
+    <!-- 🔵 清洗中 -->
+    <template x-if="status === 'washing'">
+        <div class="card" style="text-align:center;">
+            <div style="font-size:40px; margin:20px 0;">💧</div>
+            <h3>清洗进行中...</h3>
+            <button class="btn" @click="status='ready'" style="margin-top:16px;" x-show="role==='worker'">✨ 标记完成</button>
+        </div>
+    </template>
+
+    <!-- 🟢 可提车 / 付款 -->
+    <template x-if="status === 'ready'">
+        <div class="card">
+            <h3 style="color:var(--status-ready);">🟢 车辆已准备好</h3>
+            <button class="btn" style="margin-top:16px;" @click="status='paid'">💳 <span x-text="role==='guest'?'立即支付':'代客支付'"></span></button>
+        </div>
+    </template>
+
+    <!-- 📄 Sale: 确认提车 -->
+    <template x-if="status === 'paid' && role==='sale'">
+        <div class="card">
+            <h3>📄 提车确认文件</h3>
+            <div style="background:var(--bg-page); padding:12px; border-radius:8px; margin:12px 0; font-size:14px; line-height:1.6;">
+                客户已确认付款。车辆状况良好。本人确认已将车辆交还客户。
+            </div>
+            <label style="display:flex; gap:8px; margin-bottom:8px;"><input type="checkbox" x-model="ackChecked"> 确认已提车且文件无误</label>
+            <button class="btn" :disabled="!ackChecked" @click="status='completed'">✅ 确认提车</button>
+        </div>
+    </template>
+
+    <!-- ✅ 已完成 -->
+    <template x-if="status === 'completed'">
+        <div class="card" style="text-align:center; border:2px solid var(--status-completed);">
+            <div style="font-size:40px; margin:20px 0;">🎉</div>
+            <h3 style="color:var(--status-completed);">任务已完成</h3>
+            <button class="btn btn-outline" style="margin-top:16px;" onclick="window.location.href='/dashboard.html?role='+role">返回仪表盘</button>
+        </div>
+    </template>
+
+    <!-- 🧠 数据与逻辑 -->
+    <script>
+        function detailData() {
+            return {
+                role: new URLSearchParams(location.search).get('role') || 'guest',
+                status: 'inspection',
+
+                // ✅ 模拟车主数据（对接 API 后将由 id 参数动态获取）
+                ownerName: 'Tan Ah Kow',
+                ownerPhone: '012-345 6789',
+
+                checklist: { accept: true, scratch: false, loose: false, dirt: false },
+                ackChecked: false,
+
+                // 状态标签中文映射
+                statusNames: {
+                    inspection: '检查中', washing: '清洗中', ready: '可提车',
+                    paid: '已付款', completed: '已完成', exception: '异常'
+                },
+
+                isDone() {
+                    return this.checklist.accept && this.checklist.scratch && this.checklist.loose && this.checklist.dirt;
+                },
+                s
+                initDetail() {
+                    // 预留钩子：后续替换为 fetch(`/api/jobs/${id}`)
+                    // const id = new URLSearchParams(location.search).get('id');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

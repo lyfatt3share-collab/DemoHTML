@@ -24,7 +24,7 @@
 
     <!-- 菜单导航 -->
     <nav style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;">
-        <a href="/job/create.html" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="['guest','sale','admin'].includes(role)">➕ <span x-text="t('create')"></span></a>
+        <a href="job/create.html" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="['guest','sale','admin'].includes(role)">➕ <span x-text="t('create')"></span></a>
         <button class="btn btn-outline" style="width:auto; white-space:nowrap;">🔍 <span x-text="t('search')"></span></button>
         <button class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="role==='admin'"> <span x-text="t('report')"></span></button>
     </nav>
