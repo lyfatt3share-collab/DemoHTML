@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<main>
+  <h2>Create Job</h2>
+  <input id="plate" placeholder="Car Plate" style="padding:10px;width:100%"/>
+  <button class="btn primary" onclick="create()">Submit</button>
+</main>
+
+<script src="js/store.js"></script>
+<script>
+function create() {
+  Store.createJob(
+    document.getElementById("plate").value,
+    "Guest"
+  );
+  location.href = "dashboard.html?role=guest";
+}
+</script>
+</body>
+</html>
+``

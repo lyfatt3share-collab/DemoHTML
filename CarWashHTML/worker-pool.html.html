@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<main>
+  <h2>Available Jobs</h2>
+  <input placeholder="Filter by plate"
+    oninput="filter(this.value)"
+    style="padding:10px;width:100%"/>
+
+  <div id="list"></div>
+</main>
+
+<script src="js/store.js"></script>
+<script>
+const list = document.getElementById("list");
+
+function render(jobs){
+  list.innerHTML = jobs.map(j => `
+    <div class="card">
+      <b>${j.plate}</b>
+      <button class="btn primary"
+        onclick="location.href='job-detail.html?ide.getAvailableJobs().filter(j => j.plate.includes(q)));
+}
+
+render(Store.getAvailableJobs());
+</script>
+</body>
+</html>
