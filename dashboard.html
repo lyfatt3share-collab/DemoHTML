@@ -25,12 +25,21 @@
     <!-- 菜单导航 -->
     <nav style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;">
         <a href="job/create.html" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="['guest','sale','admin'].includes(role)">➕ <span x-text="t('create')"></span></a>
-        <button class="btn btn-outline" style="width:auto; white-space:nowrap;">🔍 <span x-text="t('search')"></span></button>
+        <button class="btn btn-outline" style="width:auto; white-space:nowrap;" @click="showSearch = !showSearch">🔍 <span x-text="t('search')"></span></button>
         <button class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="role==='admin'"> <span x-text="t('report')"></span></button>
     </nav>
 
+    <!-- 搜索框 -->
+    <div x-show="showSearch" style="margin-bottom:16px;" x-transition>
+        <input type="text" 
+               x-model="searchQuery"
+               placeholder="🔍 搜索车牌/车主/工单号..."
+               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none;"
+               @input="filterJobs()">
+    </div>
+
     <!-- 任务列表 -->
-    <template x-for="job in jobs" :key="job.id">
+    <template x-for="job in filteredJobs" :key="job.id">
         <div class="card" @click="window.location.href=`/job/detail.html?id=${job.id}&role=${role}`">
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <div style="width: 85%;">
@@ -69,6 +78,8 @@
         lang: localStorage.getItem('lang') || 'zh',
         role: new URLSearchParams(window.location.search).get('role') || 'guest',
         isOnline: navigator.onLine,
+        showSearch: false,
+        searchQuery: '',
 
         // ✅ 数据已更新：加入 ownerName 和 ownerPhone
         jobs: [
@@ -76,6 +87,24 @@
           { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
           { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' }
         ],
+
+        get filteredJobs() {
+          if (!this.searchQuery.trim()) {
+            return this.jobs;
+          }
+          const query = this.searchQuery.toLowerCase();
+          return this.jobs.filter(job => 
+            job.plate.toLowerCase().includes(query) ||
+            job.ownerName.toLowerCase().includes(query) ||
+            job.id.toLowerCase().includes(query) ||
+            job.model.toLowerCase().includes(query) ||
+            job.color.toLowerCase().includes(query)
+          );
+        },
+
+        filterJobs() {
+          // Alpine.js will automatically re-render based on filteredJobs computed property
+        },
 
         i18n: {
           zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
