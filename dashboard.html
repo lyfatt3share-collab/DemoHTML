@@ -88,15 +88,15 @@
         <div class="nav-item active">🏠 <span x-text="t('dashboard')"></span></div>
         <div class="nav-item">📋 <span x-text="t('report')"></span></div>
         <!-- 语言选择器 -->
-        <div class="nav-item lang-nav-item" style="position:relative;" x-data="{ open: false }">
-            <span @click="open = !open" class="lang-nav-btn" :class="{ 'active': open }">
+        <div class="nav-item lang-nav-item" style="position:relative;">
+            <span @click="langOpen = !langOpen" class="lang-nav-btn" :class="{ 'active': langOpen }">
                 🌐 <span x-text="lang.toUpperCase()"></span>
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left:4px;" :style="{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style="margin-left:4px;" :style="{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
                     <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </span>
-            <div x-show="open" 
-                 @click.away="open = false"
+            <div x-show="langOpen" 
+                 @click.away="langOpen = false"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-2 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -104,21 +104,21 @@
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                  class="lang-dropdown lang-dropdown-bottom">
-                <button @click="switchLang('zh'); open = false" 
+                <button @click="switchLang('zh'); langOpen = false" 
                         class="lang-option"
                         :class="{ 'active': lang === 'zh' }">
                     <span class="lang-flag">🇨🇳</span>
                     <span class="lang-name">中文</span>
                     <span class="lang-code">ZH</span>
                 </button>
-                <button @click="switchLang('en'); open = false" 
+                <button @click="switchLang('en'); langOpen = false" 
                         class="lang-option"
                         :class="{ 'active': lang === 'en' }">
                     <span class="lang-flag">🇬🇧</span>
                     <span class="lang-name">English</span>
                     <span class="lang-code">EN</span>
                 </button>
-                <button @click="switchLang('ms'); open = false" 
+                <button @click="switchLang('ms'); langOpen = false" 
                         class="lang-option"
                         :class="{ 'active': lang === 'ms' }">
                     <span class="lang-flag">🇲🇾</span>
@@ -228,6 +228,7 @@
         showSearch: false,
         searchQuery: '',
         searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
+        langOpen: false,
 
         // ✅ 数据已更新：加入 ownerName 和 ownerPhone
         jobs: [
