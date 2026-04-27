@@ -33,9 +33,29 @@
     <div x-show="showSearch" style="margin-bottom:16px;" x-transition>
         <input type="text" 
                x-model="searchQuery"
-               placeholder="🔍 搜索车牌/车主/工单号..."
+               :placeholder="t('searchPlaceholder')"
                style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none;"
                @input="filterJobs()">
+        
+        <!-- 搜索历史 -->
+        <div x-show="searchHistory.length > 0 && searchQuery === ''" style="margin-top:8px;">
+            <p style="font-size:12px; color:var(--text-secondary); margin-bottom:4px;" x-text="t('recentSearches')"></p>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <template x-for="(item, index) in searchHistory" :key="index">
+                    <span @click="searchQuery = item; filterJobs()"
+                          style="background:var(--bg-tertiary); padding:4px 10px; border-radius:12px; font-size:12px; cursor:pointer; border:1px solid var(--border);"
+                          x-text="item"></span>
+                </template>
+                <button @click="clearHistory()" 
+                        style="background:transparent; padding:4px 10px; border-radius:12px; font-size:12px; cursor:pointer; color:var(--danger); border:1px solid var(--danger);"
+                        x-text="t('clearHistory')"></button>
+            </div>
+        </div>
+        
+        <!-- 搜索结果计数 -->
+        <div x-show="searchQuery.trim() !== ''" style="margin-top:8px; font-size:12px; color:var(--text-secondary);">
+            <span x-text="filteredJobs.length + ' / ' + jobs.length + ' ' + t('results')"></span>
+        </div>
     </div>
 
     <!-- 任务列表 -->
@@ -80,6 +100,7 @@
         isOnline: navigator.onLine,
         showSearch: false,
         searchQuery: '',
+        searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
 
         // ✅ 数据已更新：加入 ownerName 和 ownerPhone
         jobs: [
@@ -93,23 +114,39 @@
             return this.jobs;
           }
           const query = this.searchQuery.toLowerCase();
-          return this.jobs.filter(job => 
+          const results = this.jobs.filter(job => 
             job.plate.toLowerCase().includes(query) ||
             job.ownerName.toLowerCase().includes(query) ||
             job.id.toLowerCase().includes(query) ||
             job.model.toLowerCase().includes(query) ||
             job.color.toLowerCase().includes(query)
           );
+          
+          // Save to history when user searches
+          if (query.length > 0 && !this.searchHistory.includes(this.searchQuery.trim())) {
+            this.searchHistory.unshift(this.searchQuery.trim());
+            if (this.searchHistory.length > 5) {
+              this.searchHistory.pop();
+            }
+            localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
+          }
+          
+          return results;
         },
 
         filterJobs() {
           // Alpine.js will automatically re-render based on filteredJobs computed property
         },
+        
+        clearHistory() {
+          this.searchHistory = [];
+          localStorage.removeItem('searchHistory');
+        },
 
         i18n: {
-          zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
-          en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
-          ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+          zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
+          en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
+          ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
         },
 
         initDashboard() {
