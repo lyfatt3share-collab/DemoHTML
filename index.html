@@ -1,185 +1,67 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PWA Demo - 角色入口</title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
-      background: #f3f4f6;
-    }
-
-    header {
-      background: #111827;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
-
-    main {
-      padding: 16px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .role-btn {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 24px;
-      text-align: center;
-      font-size: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
-      cursor: pointer;
-      border: none;
-    }
-
-    .role-btn:hover {
-      background: #e5e7eb;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 3px 8px rgba(0,0,0,.08);
-    }
-
-    .tag {
-      display: inline-block;
-      background: #2563eb;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    button.back {
-      background: #6b7280;
-      color: #fff;
-      border: none;
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 16px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WASHFLOW DEMO</title>
+    <!-- ✅ 统一使用相对路径，避免 GitHub Pages 子目录 404 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <style>
+        /* 确保卡片链接不显示下划线，继承文字颜色 */
+        a.role-card {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            cursor: pointer;
+        }
+    </style>
 </head>
+<body x-data="{ lang: localStorage.getItem('lang') || 'zh' }">
+    <div style="text-align:center; margin: 40px 0 32px;">
+        <div class="logo">🚗 WASHFLOW</div>
+        <span style="color:var(--text-secondary); font-size:14px; margin-top:8px; display:block;">DEMO MODE</span>
+        <p style="color:var(--text-secondary); font-size:12px; margin-top:4px;">选择角色（仅用于流程与权限演示）</p>
+    </div>
 
-<body>
-  <header>
-    <h2 id="title">选择角色（Demo）</h2>
-    <p id="subtitle">仅用于流程和权限展示</p>
-  </header>
+    <!-- ✅ 改用原生 <a> 标签，100% 可靠跳转，不依赖 JS -->
+    <div class="role-grid">
+        <a href="dashboard.html?role=guest" class="card role-card">
+            <span class="role-icon">👤</span>
+            <strong>Guest</strong>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">体验用户</div>
+        </a>
+        <a href="dashboard.html?role=sale" class="card role-card">
+            <span class="role-icon">💼</span>
+            <strong>Sale</strong>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">销售顾问</div>
+        </a>
+        <a href="dashboard.html?role=worker" class="card role-card">
+            <span class="role-icon">🔧</span>
+            <strong>Worker</strong>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">洗车技师</div>
+        </a>
+        <a href="dashboard.html?role=admin" class="card role-card">
+            <span class="role-icon">⚙️</span>
+            <strong>Admin</strong>
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">系统管理</div>
+        </a>
+    </div>
 
-  <main id="app"></main>
+    <div style="text-align:center; margin-top:32px;">
+        <button class="btn btn-outline" style="width:auto; padding:8px 16px;" @click="lang = lang==='zh'?'en':'ms'; localStorage.setItem('lang', lang); window.location.reload();">
+            🌐 <span x-text="lang.toUpperCase()"></span>
+        </button>
+    </div>
 
-  <script>
-    const app = document.getElementById("app");
-    const title = document.getElementById("title");
-    const subtitle = document.getElementById("subtitle");
-
-    function showRoleSelector() {
-      title.innerText = "选择角色（Demo）";
-      subtitle.innerText = "这个页面只是入口，用完即丢";
-      app.innerHTML = `
-        <div class="grid">
-          <button class="role-btn" onclick="openDashboard('admin')">
-            👑 管理员
-          </button>
-          <button class="role-btn" onclick="openDashboard('operator')">
-            🛠 运营人员
-          </button>
-          <button class="role-btn" onclick="openDashboard('customer')">
-            🙋 客户
-          </button>
-          <button class="role-btn" onclick="openDashboard('auditor')">
-            📊 审计 / 只读
-          </button>
-        </div>
-      `;
-    }
-
-    function openDashboard(role) {
-      title.innerText = "Dashboard";
-      subtitle.innerText = `当前角色：${role}`;
-
-      let content = "";
-
-      if (role === "admin") {
-        content = `
-          <div class="card">
-            <div class="tag">管理员</div>
-            <h3>系统总览</h3>
-            <p>用户数 / 配置 / 权限管理</p>
-          </div>
-          <div class="card">
-            <h3>角色与权限管理</h3>
-            <p>创建/修改角色（仅 Demo）</p>
-          </div>
-        `;
-      }
-
-      if (role === "operator") {
-        content = `
-          <div class="card">
-            <div class="tag">运营</div>
-            <h3>今日任务</h3>
-            <p>处理流程 / 审批 / 工单</p>
-          </div>
-          <div class="card">
-            <h3>数据录入</h3>
-            <p>只看到自己相关数据</p>
-          </div>
-        `;
-      }
-
-      if (role === "customer") {
-        content = `
-          <div class="card">
-            <div class="tag">客户</div>
-            <h3>我的申请</h3>
-            <p>提交 / 查看状态</p>
-          </div>
-          <div class="card">
-            <h3>通知</h3>
-            <p>系统消息 / 结果反馈</p>
-          </div>
-        `;
-      }
-
-      if (role === "auditor") {
-        content = `
-          <div class="card">
-            <div class="tag">只读</div>
-            <h3>记录查询</h3>
-            <p>历史数据 / 日志</p>
-          </div>
-          <div class="card">
-            <h3>导出</h3>
-            <p>只读，不可操作</p>
-          </div>
-        `;
-      }
-
-      app.innerHTML = `
-        ${content}
-        <button class="back" onclick="showRoleSelector()">返回角色选择</button>
-      `;
-    }
-
-    // 初始页面
-    showRoleSelector();
-  </script>
+    <!-- PWA Service Worker 注册 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW注册失败:', err));
+            });
+        }
+    </script>
 </body>
 </html>

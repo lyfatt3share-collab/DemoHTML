@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+</head>
+<body x-data="dashboardData"
+      x-init="initDashboard()">
+    <!-- 离线提示 -->
+    <div class="offline-banner" x-show="!isOnline" x-text="t('offline')"></div>
+
+    <!-- 顶部栏 -->
+    <div class="header">
+        <div class="logo"> WASHFLOW</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <span class="tag pending" style="background:var(--primary-light); color:var(--primary); border:1px solid var(--primary);" x-text="role.toUpperCase()"></span>
+            <button class="btn btn-outline" style="width:auto; padding:6px 10px;" onclick="window.location.href='/'">🔙</button>
+        </div>
+    </div>
+
+    <!-- 菜单导航 -->
+    <nav style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;">
+        <a href="/job/create.html" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="['guest','sale','admin'].includes(role)">➕ <span x-text="t('create')"></span></a>
+        <button class="btn btn-outline" style="width:auto; white-space:nowrap;">🔍 <span x-text="t('search')"></span></button>
+        <button class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="role==='admin'"> <span x-text="t('report')"></span></button>
+    </nav>
+
+    <!-- 任务列表 -->
+    <template x-for="job in jobs" :key="job.id">
+        <div class="card" @click="window.location.href=`/job/detail.html?id=${job.id}&role=${role}`">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div style="width: 85%;">
+                    <h3 style="font-size:18px; margin-bottom:4px;">🚗 <span x-text="job.plate"></span></h3>
+                    <p style="color:var(--text-secondary); font-size:14px;">
+                        <span x-text="job.model"></span> · <span x-text="job.color"></span>
+                    </p>
+
+                    <!-- ✅ 新增：车主信息 -->
+                    <p style="color:var(--text-secondary); font-size:13px; margin-top:4px; display:flex; align-items:center; gap:4px;">
+                        <span> <span x-text="job.ownerName"></span></span>
+                        <span style="margin:0 4px;">·</span>
+                        <span>📞 <span x-text="job.ownerPhone"></span></span>
+                    </p>
+                </div>
+                <span class="tag" :class="job.status" x-text="t(job.status)"></span>
+            </div>
+            <div style="margin-top:12px; font-size:13px; color:var(--text-secondary);">
+                ID: <span x-text="job.id"></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active"> 首页</div>
+        <div class="nav-item">📋 任务</div>
+        <div class="nav-item" @click="switchLang(lang==='zh'?'en':'ms')"> <span x-text="lang"></span></div>
+        <div class="nav-item"> <span x-text="role"></span></div>
+    </div>
+
+    <!-- 核心数据与逻辑 -->
+    <script>
+    function dashboardData() {
+      return {
+        lang: localStorage.getItem('lang') || 'zh',
+        role: new URLSearchParams(window.location.search).get('role') || 'guest',
+        isOnline: navigator.onLine,
+
+        // ✅ 数据已更新：加入 ownerName 和 ownerPhone
+        jobs: [
+          { id: 'J001', plate: 'B 1234 ABC', model: 'Honda City', color: 'White', ownerName: 'Tan Ah Kow', ownerPhone: '012-345 6789', status: 'inspection' },
+          { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
+          { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' }
+        ],
+
+        i18n: {
+          zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
+          en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
+          ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+        },
+
+        initDashboard() {
+          window.addEventListener('online', () => this.isOnline = true);
+          window.addEventListener('offline', () => this.isOnline = false);
+        },
+
+        t(key) {
+          return this.i18n[this.lang]?.[key] || key;
+        },
+
+        switchLang(lang) {
+          this.lang = lang;
+          localStorage.setItem('lang', lang);
+          window.location.reload();
+        }
+      }
+    }
+    </script>
+</body>
+</html>
