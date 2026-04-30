@@ -22,7 +22,7 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   background: var(--bg-page); color: var(--text-primary); line-height: 1.5;
-  padding: 16px; max-width: 480px; margin: 0 auto; min-height: 100vh;
+  padding: 16px; max-width: 480px; margin: 0 auto; min-height: 100vh;padding-bottom: 80px; /* ≈ bottom-nav 高度 */
 }
 a { text-decoration: none; color: inherit; }
 input, select, textarea, button { font-family: inherit; }
@@ -68,11 +68,145 @@ input, select, textarea, button { font-family: inherit; }
 .role-icon { font-size: 32px; margin-bottom: 8px; display: block; }
 
 .bottom-nav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px; background: var(--bg-card); border-top: 1px solid var(--border);
-  display: flex; justify-content: space-around; padding: 10px 0; z-index: 100;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    z-index: 100;
 }
-.nav-item { text-align: center; font-size: 11px; color: var(--text-secondary); cursor: pointer; padding: 4px 8px; }
-.nav-item.active { color: var(--primary); font-weight: 500; }
+
+.bottom-nav .nav-item {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.nav-item.active {
+    color: var(--primary);
+    font-weight: 500;
+}
+
+/* ===== Bottom Nav Icon: 固定视觉盒子 ===== */
+.bottom-nav .nav-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    line-height: 1;
+}
+
 .offline-banner { background: #F59E0B; color: white; text-align: center; padding: 6px; font-size: 13px; display: none; margin-bottom: 12px; border-radius: 6px; }
 .offline-banner.show { display: block; }
+
+/* 语言按钮样式 - 与其他导航项保持一致 */
+.nav-lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0; /* ❗移除 padding，避免撑高 */
+    margin: 0;
+    border-radius: 0; /* 外壳由 nav-icon 控制 */
+}
+
+    .nav-lang-btn svg {
+        width: 8px;
+        height: 8px;
+        display: block;
+    }
+
+    .nav-lang-btn:hover {
+        background: var(--bg-tertiary);
+    }
+
+/* 下拉菜单样式 */
+.lang-dropdown {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+    min-width: 180px;
+    z-index: 1000;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+
+    .lang-option:hover {
+        background: var(--bg-page);
+    }
+
+    .lang-option.active {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .lang-option:not(:last-child) {
+        border-bottom: 1px solid var(--border);
+    }
+
+.lang-flag {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.lang-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.lang-code {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--bg-tertiary, #F1F5F9);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.lang-option.active .lang-code {
+    background: var(--primary);
+    color: white;
+}
+
+/* ===== 底部导航栏 ===== */
+
+
+/* 文案 */
+.bottom-nav .nav-label {
+    font-size: 12px;
+    color: var(--text-secondary, #6b7280);
+}
+
+/* 选中态 */
+.bottom-nav .nav-item.active .nav-label {
+    color: var(--primary, #2563eb);
+}
