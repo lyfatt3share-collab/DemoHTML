@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
 </head>
-<body x-data="dashboardData"
-      x-init="initDashboard()">
+<body x-data="dashboardData()" x-init="initDashboard()">
     <!-- 离线提示 -->
     <div class="offline-banner" x-show="!isOnline" x-text="t('offline')"></div>
 
@@ -31,12 +30,12 @@
 
     <!-- 搜索框 -->
     <div x-show="showSearch" style="margin-bottom:16px;" x-transition>
-        <input type="text" 
+        <input type="text"
                x-model="searchQuery"
                :placeholder="t('searchPlaceholder')"
                style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:14px; outline:none;"
                @input="filterJobs()">
-        
+
         <!-- 搜索历史 -->
         <div x-show="searchHistory.length > 0 && searchQuery === ''" style="margin-top:8px;">
             <p style="font-size:12px; color:var(--text-secondary); margin-bottom:4px;" x-text="t('recentSearches')"></p>
@@ -46,12 +45,12 @@
                           style="background:var(--bg-tertiary); padding:4px 10px; border-radius:12px; font-size:12px; cursor:pointer; border:1px solid var(--border);"
                           x-text="item"></span>
                 </template>
-                <button @click="clearHistory()" 
+                <button @click="clearHistory()"
                         style="background:transparent; padding:4px 10px; border-radius:12px; font-size:12px; cursor:pointer; color:var(--danger); border:1px solid var(--danger);"
                         x-text="t('clearHistory')"></button>
             </div>
         </div>
-        
+
         <!-- 搜索结果计数 -->
         <div x-show="searchQuery.trim() !== ''" style="margin-top:8px; font-size:12px; color:var(--text-secondary);">
             <span x-text="filteredJobs.length + ' / ' + jobs.length + ' ' + t('results')"></span>
@@ -98,13 +97,13 @@
             <span class="nav-icon nav-lang-btn" @click="langOpen = !langOpen">
                 🌐
                 <svg width="8" height="8" viewBox="0 0 12 12" fill="none" style="margin-left:2px;" :style="{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
-                    <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </span>
             <span class="nav-label" x-text="lang.toUpperCase()"></span>
-            
+
             <!-- 下拉菜单 -->
-            <div x-show="langOpen" 
+            <div x-show="langOpen"
                  @click.away="langOpen = false"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-2 scale-95"
@@ -113,21 +112,21 @@
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                  class="lang-dropdown">
-                <button @click="switchLang('zh'); langOpen = false" 
+                <button @click="switchLang('zh'); langOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'zh' }">
                     <span class="lang-flag">🇨🇳</span>
                     <span class="lang-name">中文</span>
                     <span class="lang-code">ZH</span>
                 </button>
-                <button @click="switchLang('en'); langOpen = false" 
+                <button @click="switchLang('en'); langOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'en' }">
                     <span class="lang-flag">🇬🇧</span>
                     <span class="lang-name">English</span>
                     <span class="lang-code">EN</span>
                 </button>
-                <button @click="switchLang('ms'); langOpen = false" 
+                <button @click="switchLang('ms'); langOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'ms' }">
                     <span class="lang-flag">🇲🇾</span>
@@ -144,79 +143,79 @@
 
     <!-- 核心数据与逻辑 -->
     <script>
-    function dashboardData() {
-      return {
-        lang: localStorage.getItem('lang') || 'zh',
-        role: new URLSearchParams(window.location.search).get('role') || 'guest',
-        isOnline: navigator.onLine,
-        showSearch: false,
-        searchQuery: '',
-        searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
-        langOpen: false,
+        function dashboardData() {
+            return {
+                lang: localStorage.getItem('lang') || 'zh',
+                role: new URLSearchParams(window.location.search).get('role') || 'guest',
+                isOnline: navigator.onLine,
+                showSearch: false,
+                searchQuery: '',
+                searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
+                langOpen: false,
 
-        // ✅ 数据已更新：加入 ownerName 和 ownerPhone
-        jobs: [
-          { id: 'J001', plate: 'B 1234 ABC', model: 'Honda City', color: 'White', ownerName: 'Tan Ah Kow', ownerPhone: '012-345 6789', status: 'inspection' },
-          { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
-          { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' }
-        ],
+                // ✅ 数据已更新：加入 ownerName 和 ownerPhone
+                jobs: [
+                    { id: 'J001', plate: 'B 1234 ABC', model: 'Honda City', color: 'White', ownerName: 'Tan Ah Kow', ownerPhone: '012-345 6789', status: 'inspection' },
+                    { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
+                    { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' }
+                ],
 
-        get filteredJobs() {
-          if (!this.searchQuery.trim()) {
-            return this.jobs;
-          }
-          const query = this.searchQuery.toLowerCase();
-          const results = this.jobs.filter(job => 
-            job.plate.toLowerCase().includes(query) ||
-            job.ownerName.toLowerCase().includes(query) ||
-            job.id.toLowerCase().includes(query) ||
-            job.model.toLowerCase().includes(query) ||
-            job.color.toLowerCase().includes(query)
-          );
-          
-          // Save to history when user searches
-          if (query.length > 0 && !this.searchHistory.includes(this.searchQuery.trim())) {
-            this.searchHistory.unshift(this.searchQuery.trim());
-            if (this.searchHistory.length > 5) {
-              this.searchHistory.pop();
+                get filteredJobs() {
+                    if (!this.searchQuery.trim()) {
+                        return this.jobs;
+                    }
+                    const query = this.searchQuery.toLowerCase();
+                    const results = this.jobs.filter(job =>
+                        job.plate.toLowerCase().includes(query) ||
+                        job.ownerName.toLowerCase().includes(query) ||
+                        job.id.toLowerCase().includes(query) ||
+                        job.model.toLowerCase().includes(query) ||
+                        job.color.toLowerCase().includes(query)
+                    );
+
+                    // Save to history when user searches
+                    if (query.length > 0 && !this.searchHistory.includes(this.searchQuery.trim())) {
+                        this.searchHistory.unshift(this.searchQuery.trim());
+                        if (this.searchHistory.length > 5) {
+                            this.searchHistory.pop();
+                        }
+                        localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
+                    }
+
+                    return results;
+                },
+
+                filterJobs() {
+                    // Alpine.js will automatically re-render based on filteredJobs computed property
+                },
+
+                clearHistory() {
+                    this.searchHistory = [];
+                    localStorage.removeItem('searchHistory');
+                },
+
+                i18n: {
+                    zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
+                    en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
+                    ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+                },
+
+                initDashboard() {
+                    window.addEventListener('online', () => this.isOnline = true);
+                    window.addEventListener('offline', () => this.isOnline = false);
+                },
+
+                t(key) {
+                    return this.i18n[this.lang]?.[key] || key;
+                },
+
+                switchLang(lang) {
+                    this.lang = lang;
+                    localStorage.setItem('lang', lang);
+                    window.location.reload();
+                }
             }
-            localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory));
-          }
-          
-          return results;
-        },
-
-        filterJobs() {
-          // Alpine.js will automatically re-render based on filteredJobs computed property
-        },
-        
-        clearHistory() {
-          this.searchHistory = [];
-          localStorage.removeItem('searchHistory');
-        },
-
-        i18n: {
-          zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
-          en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
-          ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
-        },
-
-        initDashboard() {
-          window.addEventListener('online', () => this.isOnline = true);
-          window.addEventListener('offline', () => this.isOnline = false);
-        },
-
-        t(key) {
-          return this.i18n[this.lang]?.[key] || key;
-        },
-
-        switchLang(lang) {
-          this.lang = lang;
-          localStorage.setItem('lang', lang);
-          window.location.reload();
         }
-      }
-    }
     </script>
 </body>
 </html>

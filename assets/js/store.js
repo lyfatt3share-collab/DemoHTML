@@ -27,10 +27,3 @@ window.Store = {
     },
 };
 
-
-
-window.goDashboard = function (role, level = 1) {
-    const prefix = level === 1 ? '..' : '.'
-    window.location.href = `${prefix}/dashboard.html?role=${role}`
-}
-
