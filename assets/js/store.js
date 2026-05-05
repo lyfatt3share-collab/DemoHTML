@@ -25,10 +25,12 @@ window.Store = {
   getJob(id) {
     return this.jobs.find(j => j.id === id);
     },
-
-    
-  goDashboard() {
-        window.location.href = `../dashboard.html?role=${this.role}`
-    }
-
 };
+
+
+
+window.goDashboard = function (role, level = 1) {
+    const prefix = level === 1 ? '..' : '.'
+    window.location.href = `${prefix}/dashboard.html?role=${role}`
+}
+

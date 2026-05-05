@@ -6,12 +6,13 @@
     <title>创建订单</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <script src="../assets/js/store.js" defer></script>
 </head>
 <!-- ✅ 数据结构已更新：加入 ownerName 和 ownerPhone -->
 <body x-data="{ plate:'', ownerName:'', ownerPhone:'', model:'', color:'', remark:'', loading:false }"
       style="padding-bottom:80px;">
     <div class="header">
-        <button class="btn btn-outline" style="width:auto; padding:6px 10px;" onclick="history.back()">←</button>
+        <button class="btn btn-outline" style="width:auto; padding:6px 10px;" @click="goDashboard()">←</button>
         <strong>创建洗车任务</strong>
         <div style="width:24px;"></div>
     </div>

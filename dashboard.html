@@ -60,7 +60,7 @@
 
     <!-- 任务列表 -->
     <template x-for="job in filteredJobs" :key="job.id">
-        <div class="card" @click="window.location.href=`/job/detail.html?id=${job.id}&role=${role}`">
+        <div class="card" @click="window.location.href=`./job/detail.html?id=${job.id}&role=${role}`">
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <div style="width: 85%;">
                     <h3 style="font-size:18px; margin-bottom:4px;">🚗 <span x-text="job.plate"></span></h3>
