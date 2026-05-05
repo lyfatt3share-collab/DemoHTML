@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>日交易明细</title>
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+</head>
+
+<body x-data="ledgerData()" x-init="guard(); initLedger()" style="padding-bottom:80px;">
+
+    <!-- Header -->
+    <div class="header">
+        <button class="btn btn-outline"
+                style="width:auto; padding:6px 10px;"
+                @click="goReport()">
+            ←
+        </button>
+        <strong>日交易明细</strong>
+        <span class="tag pending">ADMIN</span>
+    </div>
+
+    <!-- 日期选择 -->
+    <div class="card">
+        <label class="form-label">选择日期</label>
+        <input type="date" class="form-input" x-model="selectedDate" @change="loadLedger()" />
+    </div>
+
+    <!-- Export -->
+    <div class="card">
+        <button class="btn btn-outline" @click="exportData()">
+            ⤓ 导出交易明细（CSV / Excel）
+        </button>
+    </div>
+
+    <!-- 交易列表 -->
+    <template x-for="tx in transactions" :key="tx.id">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between;">
+                <strong x-text="tx.id"></strong>
+                <span x-text="tx.time"></span>
+            </div>
+
+            <div style="margin-top:8px;">
+                金额：RM <strong x-text="tx.amount.toFixed(2)"></strong>
+            </div>
+
+            <div style="margin-top:4px; font-size:13px; color:var(--text-secondary);">
+                支付方式：<span x-text="tx.method"></span> ·
+                状态：<span x-text="tx.status"></span>
+            </div>
+        </div>
+    </template>
+
+    <!-- Alpine -->
+    <script>
+        function ledgerData() {
+            return {
+                role: new URLSearchParams(location.search).get('role'),
+
+                selectedDate: '',
+                transactions: [],
+
+                // ✅ guard：必须第一时间执行
+                guard() {
+                    if (this.role !== 'admin') {
+                        window.location.replace('./dashboard.html')
+                    }
+                },
+
+                initLedger() {
+                    this.selectedDate = new Date().toISOString().slice(0, 10)
+                    this.loadLedger()
+                },
+
+                loadLedger() {
+                    this.transactions = [
+                        { id: 'TX-10001', time: '10:12', amount: 120.0, method: 'Cash', status: 'Completed' },
+                        { id: 'TX-10002', time: '11:03', amount: 85.5, method: 'Card', status: 'Completed' },
+                        { id: 'TX-10003', time: '14:45', amount: 150.25, method: 'E-Wallet', status: 'Completed' },
+                    ]
+                },
+
+                exportData() {
+                    alert('Export 将由 Finance 处理（V1 占位）')
+                },
+
+                goReport() {
+                    window.location.href = `./report.html?role=${this.role}`
+                },
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>销售报表</title>
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+</head>
+
+<body x-data="reportData()" x-init="guard(); initReport()" style="padding-bottom:80px;">
+
+    <!-- Header -->
+    <div class="header">
+        <button class="btn btn-outline"
+                style="width:auto; padding:6px 10px;"
+                @click="goDashboard()">
+            ←
+        </button>
+        <strong>销售报表</strong>
+        <span class="tag pending">ADMIN</span>
+    </div>
+
+    <!-- 时间与视图选择 -->
+    <div class="card">
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <button class="btn btn-outline" :class="{ 'primary': view==='day' }" @click="setView('day')">日</button>
+            <button class="btn btn-outline" :class="{ 'primary': view==='week' }" @click="setView('week')">周</button>
+            <button class="btn btn-outline" :class="{ 'primary': view==='month' }" @click="setView('month')">月</button>
+        </div>
+
+        <input type="date" class="form-input" x-model="selectedDate" @change="loadReport()" />
+    </div>
+
+    <!-- 核心指标 -->
+    <div class="card">
+        <h2 style="font-size:24px;">
+            RM <span x-text="summary.totalSales.toFixed(2)"></span>
+        </h2>
+
+        <p style="color:var(--text-secondary);">
+            <span x-text="labelForDate"></span> 销售额
+        </p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+            <div>
+                <p style="font-size:13px;">完成订单</p>
+                <strong x-text="summary.completedOrders"></strong>
+            </div>
+            <div>
+                <p style="font-size:13px;">异常订单</p>
+                <strong :style="summary.exceptionOrders > 0 ? 'color:var(--status-exception)' : ''"
+                        x-text="summary.exceptionOrders">
+                </strong>
+            </div>
+        </div>
+
+        <div style="margin-top:12px;">
+            <span :style="trendDirection === 'up'
+          ? 'color:var(--status-ready)'
+          : trendDirection === 'down'
+          ? 'color:var(--status-exception)'
+          : ''"
+                  x-text="trendText">
+            </span>
+        </div>
+
+        <!-- 去 ledger -->
+        <div style="margin-top:16px;">
+            <button class="btn btn-outline" style="width:100%;" @click="goLedger()">
+                查看当日交易明细
+            </button>
+        </div>
+    </div>
+
+    <!-- Alpine -->
+    <script>
+        function reportData() {
+            return {
+                role: new URLSearchParams(location.search).get('role'),
+
+                view: 'day',
+                selectedDate: '',
+                summary: {
+                    totalSales: 0,
+                    completedOrders: 0,
+                    exceptionOrders: 0,
+                },
+                trendDirection: 'flat',
+                trendText: '',
+                labelForDate: '',
+
+                // ✅ guard：第一行就执行
+                guard() {
+                    if (this.role !== 'admin') {
+                        window.location.replace('./dashboard.html')
+                    }
+                },
+
+                initReport() {
+                    this.selectedDate = new Date().toISOString().slice(0, 10)
+                    this.loadReport()
+                },
+
+                setView(v) {
+                    this.view = v
+                    this.loadReport()
+                },
+
+                loadReport() {
+                    this.labelForDate =
+                        this.view === 'day' ? '今天' :
+                            this.view === 'week' ? '本周' : '本月'
+
+                    this.summary.totalSales = Math.random() * 5000 + 1000
+                    this.summary.completedOrders = Math.floor(Math.random() * 30 + 10)
+                    this.summary.exceptionOrders = Math.floor(Math.random() * 3)
+
+                    const trend = Math.random()
+                    if (trend > 0.66) {
+                        this.trendDirection = 'up'
+                        this.trendText = '↑ 较上一周期增长'
+                    } else if (trend < 0.33) {
+                        this.trendDirection = 'down'
+                        this.trendText = '↓ 较上一周期下降'
+                    } else {
+                        this.trendDirection = 'flat'
+                        this.trendText = '≈ 与上一周期持平'
+                    }
+                },
+
+                goLedger() {
+                    window.location.href = `./ledger.html?role=${this.role}`
+                },
+
+                goDashboard() {
+                    window.location.href = `./dashboard.html?role=${this.role}`
+                },
+            }
+        }
+    </script>
+</body>
+</html>
