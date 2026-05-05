@@ -12,22 +12,49 @@
       style="padding-bottom:100px;">
     <!-- 顶部栏 -->
     <div class="header">
-        <button class="btn btn-outline" style="width:auto; padding:6px 10px;" onclick="history.back()">←</button>
+
+        <button class="btn btn-outline"
+                style="width:auto; padding:6px 10px;"
+                @click="goDashboard()">
+            ←
+        </button>
+
         <strong>任务详情</strong>
         <span class="tag" :class="status" x-text="statusNames[status] || status"></span>
     </div>
 
     <!-- ✅ 车辆 & 车主信息卡片 -->
     <div class="card">
-        <h2 style="margin-bottom:6px;"> B 1234 ABC</h2>
-        <p style="color:var(--text-secondary); margin-bottom:10px;">Honda City · White · SUV</p>
-        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border);">
-            <span style="font-size:14px;"> <span x-text="ownerName"></span></span>
-            <!-- 📞 点击可直接调起手机拨号 -->
-            <a :href="'tel:' + ownerPhone" style="color:var(--primary); font-size:14px; font-weight:500; text-decoration:none;">
-                📞 <span x-text="ownerPhone"></span>
+        <h2 style="margin-bottom:6px;">
+            🚗 <span x-text="job.plate"></span>
+        </h2>
+
+        <p style="color:var(--text-secondary); margin-bottom:6px;">
+            <span x-text="job.model"></span>
+            · <span x-text="job.color"></span>
+            · <span x-text="job.type"></span>
+        </p>
+
+        <p style="font-size:13px; color:var(--text-secondary);">
+            工单 ID：<strong x-text="job.id"></strong>
+        </p>
+
+        <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:14px;">
+                👤 <span x-text="job.ownerName"></span>
+            </div>
+
+            <a :href="'tel:' + job.ownerPhone"
+               style="color:var(--primary); font-size:14px; font-weight:500; text-decoration:none;">
+                📞 <span x-text="job.ownerPhone"></span>
             </a>
         </div>
+
+        <template x-if="job.remark">
+            <div style="margin-top:12px; font-size:13px; color:var(--text-secondary);">
+                📝 备注：<span x-text="job.remark"></span>
+            </div>
+        </template>
     </div>
 
     <!--  Worker: 检查清单 -->
@@ -89,26 +116,45 @@
                 role: new URLSearchParams(location.search).get('role') || 'guest',
                 status: 'inspection',
 
-                // ✅ 模拟车主数据（对接 API 后将由 id 参数动态获取）
-                ownerName: 'Tan Ah Kow',
-                ownerPhone: '012-345 6789',
+                // ✅ 模拟完整 Job 数据（未来由 API / Store 根据 id 获取）
+                job: {
+                    id: 'J001',
+                    plate: 'B 1234 ABC',
+                    model: 'Honda City',
+                    color: 'White',
+                    type: 'Sedan',
+                    ownerName: 'Tan Ah Kow',
+                    ownerPhone: '012-345 6789',
+                    remark: '请注意车尾刮痕'
+                },
 
-                checklist: { accept: true, scratch: false, loose: false, dirt: false },
+                checklist: {
+                    accept: true,
+                    scratch: false,
+                    loose: false,
+                    dirt: false
+                },
+
                 ackChecked: false,
 
-                // 状态标签中文映射
                 statusNames: {
-                    inspection: '检查中', washing: '清洗中', ready: '可提车',
-                    paid: '已付款', completed: '已完成', exception: '异常'
+                    inspection: '检查中',
+                    washing: '清洗中',
+                    ready: '可提车',
+                    paid: '已付款',
+                    completed: '已完成',
+                    exception: '异常'
                 },
 
                 isDone() {
-                    return this.checklist.accept && this.checklist.scratch && this.checklist.loose && this.checklist.dirt;
+                    const c = this.checklist;
+                    return c.accept && c.scratch && c.loose && c.dirt;
                 },
-                s
+
                 initDetail() {
-                    // 预留钩子：后续替换为 fetch(`/api/jobs/${id}`)
+                    // ✅ 后续替换成：
                     // const id = new URLSearchParams(location.search).get('id');
+                    // fetch(`/api/jobs/${id}`).then(...)
                 }
             }
         }
