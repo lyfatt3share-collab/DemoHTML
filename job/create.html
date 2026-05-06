@@ -18,6 +18,21 @@
     <form @submit.prevent="submitForm()">
 
         <div class="form-group">
+            <label>服务日期 *</label>
+            <input type="date" x-model="serviceDate" class="form-input" required>
+        </div>
+
+
+        <div class="form-group">
+            <label>Car Dealer（B2B, 可选）</label>
+            <input type="text"
+                   x-model="dealer"
+                   class="form-input"
+                   placeholder="例如：Toyota Cheras">
+        </div>
+
+
+        <div class="form-group">
             <label>车牌号码 *</label>
             <input type="text" x-model="plate" class="form-input" placeholder="例: B 1234 ABC" required style="text-transform:uppercase;">
         </div>
@@ -43,6 +58,16 @@
         </div>
 
         <div class="form-group">
+            <label>服务项目 *</label>
+
+            <label><input type="checkbox" value="wash" x-model="services"> 洗车</label>
+            <label><input type="checkbox" value="vacuum" x-model="services"> 吸尘</label>
+            <label><input type="checkbox" value="wash_vacuum" x-model="services"> 洗车 + 吸尘</label>
+            <label><input type="checkbox" value="wax" x-model="services"> 打蜡</label>
+            <label><input type="checkbox" value="polish" x-model="services"> Polish / Coating</label>
+        </div>
+
+        <div class="form-group">
             <label>备注</label>
             <textarea x-model="remark" class="form-textarea" rows="3" placeholder="客户特殊要求..."></textarea>
         </div>
@@ -50,15 +75,25 @@
         <button type="submit" class="btn" :disabled="loading" x-text="loading ? '提交中...' : '提交订单'"></button>
     </form>
 
+
     <script>
         function createData() {
             return {
                 role: new URLSearchParams(location.search).get('role') || 'guest',
+
                 plate: '',
                 ownerName: '',
                 ownerPhone: '',
+
                 model: '',
                 color: '',
+
+                serviceDate: '',
+                dealer: '',
+
+                // ✅ 核心：服务项目 array
+                services: [],
+
                 remark: '',
                 loading: false,
 
@@ -67,15 +102,37 @@
                 },
 
                 submitForm() {
+                    if (this.services.length === 0) {
+                        alert('请选择至少一个服务项目')
+                        return
+                    }
+
                     this.loading = true
-                    // ✅ 后面这里接 API / Store
+
+                    const payload = {
+                        plate: this.plate,
+                        ownerName: this.ownerName,
+                        ownerPhone: this.ownerPhone,
+
+                        model: this.model,
+                        color: this.color,
+
+                        serviceDate: this.serviceDate,
+                        dealer: this.dealer,
+
+                        services: this.services,
+                        remark: this.remark,
+                    }
+
+                    console.log('提交数据:', payload)
+
                     setTimeout(() => {
                         this.goDashboard()
                     }, 600)
                 }
-
             }
         }
     </script>
+
 </body>
 </html>
