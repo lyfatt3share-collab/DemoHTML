@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WASHFLOW DEMO</title>
+    <title>WASHFLOW — 登录</title>
     <!-- ✅ 统一使用相对路径，避免 GitHub Pages 子目录 404 -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
     <style>
+        [x-cloak] { display: none !important; }
         /* 确保卡片链接不显示下划线，继承文字颜色 */
         a.role-card {
             text-decoration: none;
@@ -16,83 +17,77 @@
             display: block;
             cursor: pointer;
         }
-    </style>
-</head>
-<body x-data="{ lang: localStorage.getItem('lang') || 'zh' }">
-    <div style="text-align:center; margin: 40px 0 32px;">
-        <div class="logo">🚗 WASHFLOW</div>
-        <span style="color:var(--text-secondary); font-size:14px; margin-top:8px; display:block;">DEMO MODE</span>
-        <p style="color:var(--text-secondary); font-size:12px; margin-top:4px;">选择角色（仅用于流程与权限演示）</p>
-    </div>
-
-    <!-- ✅ 改用原生 <a> 标签，100% 可靠跳转，不依赖 JS -->
-    <div class="role-grid">
-        <a href="dashboard.html?role=guest" class="card role-card">
-            <span class="role-icon">👤</span>
-            <strong>Guest</strong>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">体验用户</div>
-        </a>
-        <a href="dashboard.html?role=sale" class="card role-card">
-            <span class="role-icon">💼</span>
-            <strong>Sale</strong>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">销售顾问</div>
-        </a>
-        <a href="dashboard.html?role=worker" class="card role-card">
-            <span class="role-icon">🔧</span>
-            <strong>Worker</strong>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">洗车技师</div>
-        </a>
-        <a href="dashboard.html?role=admin" class="card role-card">
-            <span class="role-icon">⚙️</span>
-            <strong>Admin</strong>
-            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">系统管理</div>
-        </a>
-    </div>
-
-    <div style="text-align:center; margin-top:32px;">
-        <!-- 语言选择器 -->
-        <div x-data="{ open: false }" class="dropdown" style="display:inline-block; position:relative;">
-            <button class="lang-btn" @click="open = !open" :class="{ 'active': open }">
-                🌐 <span x-text="lang.toUpperCase()"></span>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="margin-left:6px;" :style="{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
-                    <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            <div x-show="open" 
-                 @click.away="open = false"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 translate-y-2 scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-2 scale-95"
-                 class="lang-dropdown">
-                <button @click="setLang('zh'); open = false" 
-                        class="lang-option"
-                        :class="{ 'active': lang === 'zh' }">
-                    <span class="lang-flag">🇨🇳</span>
-                    <span class="lang-name">中文</span>
-                    <span class="lang-code">ZH</span>
-                </button>
-                <button @click="setLang('en'); open = false" 
-                        class="lang-option"
-                        :class="{ 'active': lang === 'en' }">
-                    <span class="lang-flag">🇬🇧</span>
-                    <span class="lang-name">English</span>
-                    <span class="lang-code">EN</span>
-                </button>
-                <button @click="setLang('ms'); open = false" 
-                        class="lang-option"
-                        :class="{ 'active': lang === 'ms' }">
-                    <span class="lang-flag">🇲🇾</span>
-                    <span class="lang-name">Bahasa Melayu</span>
-                    <span class="lang-code">MS</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <style>
+        /* 登录页局部：不改全局 style.css */
+        .login-page-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .demo-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .demo-toggle-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .login-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .login-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.45;
+        }
+        .qr-placeholder {
+            width: 168px;
+            height: 168px;
+            margin: 0 auto;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-page);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 12px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            line-height: 1.4;
+            box-sizing: border-box;
+        }
+        .qr-placeholder-inner {
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 14px 14px;
+            border-radius: 4px;
+            opacity: 0.45;
+        }
+        .login-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
         .lang-btn {
             display: inline-flex;
             align-items: center;
@@ -119,7 +114,7 @@
             background: var(--primary-light);
             color: var(--primary);
         }
-        
+
         .lang-dropdown {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -134,7 +129,7 @@
             overflow: hidden;
             backdrop-filter: blur(8px);
         }
-        
+
         .lang-option {
             display: flex;
             align-items: center;
@@ -157,7 +152,7 @@
         .lang-option:not(:last-child) {
             border-bottom: 1px solid var(--border);
         }
-        
+
         .lang-flag {
             font-size: 18px;
             margin-right: 10px;
@@ -180,6 +175,133 @@
             color: white;
         }
     </style>
+</head>
+<body x-data="{ lang: localStorage.getItem('lang') || 'zh', demoOpen: false, langMenuOpen: false }"
+      x-init="if (new URLSearchParams(location.search).get('demo') === '1') demoOpen = true">
+    <div class="login-page-toolbar">
+        <button type="button"
+                class="demo-toggle-btn"
+                @click="demoOpen = !demoOpen"
+                :aria-expanded="demoOpen"
+                x-text="demoOpen ? '隐藏演示入口' : '演示入口'"></button>
+    </div>
+
+    <div style="text-align:center; margin: 24px 0 20px;">
+        <div class="logo">🚗 WASHFLOW</div>
+        <span style="color:var(--text-secondary); font-size:14px; margin-top:8px; display:block;">登录入口（示意）</span>
+        <p style="color:var(--text-secondary); font-size:12px; margin-top:6px; line-height:1.45;">
+            正式环境将区分员工扫码与管理后台账号登录；当前无后端，下列表单仅为前端跳转演示。
+        </p>
+    </div>
+
+    <!-- 正式登录入口（默认展示） -->
+    <div class="card">
+        <div class="login-section-title">员工登录 · 手机扫码</div>
+        <p class="login-hint">
+            请使用已绑定门店的员工 App 扫描下方二维码完成登录（示意图）。接入后端后此处将展示动态二维码或唤起深度链接。
+        </p>
+        <div class="qr-placeholder" aria-label="二维码占位">
+            <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                <span class="qr-placeholder-inner" style="position:absolute; inset:8px;"></span>
+                <span style="position:relative; z-index:1; padding:4px 8px; background:var(--bg-card); border-radius:6px;">QR</span>
+            </div>
+        </div>
+        <p class="login-hint" style="margin-bottom:0; text-align:center;">扫码登录占位 · 非真实二维码</p>
+    </div>
+
+    <div class="card">
+        <div class="login-section-title">管理员登录</div>
+        <p class="login-hint">使用后台账号与二次验证码登录（示意）。提交不会校验凭据。</p>
+        <form id="admin-login-form" @submit.prevent="window.location.href='dashboard.html?role=admin'">
+            <div class="form-group">
+                <label for="admin-user-id">用户名 / ID</label>
+                <input id="admin-user-id" class="form-input" type="text" name="username" autocomplete="username" placeholder="例如 admin">
+            </div>
+            <div class="form-group">
+                <label for="admin-password">密码</label>
+                <input id="admin-password" class="form-input" type="password" name="password" autocomplete="current-password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label for="admin-2fa">2FA 验证码</label>
+                <input id="admin-2fa" class="form-input" type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="6 位动态码">
+            </div>
+            <button type="submit" class="btn">登录（演示跳转）</button>
+        </form>
+    </div>
+
+    <!-- Demo：角色模拟（默认隐藏；演示入口 或 ?demo=1 打开） -->
+    <div x-show="demoOpen" x-cloak x-transition.opacity.duration.200ms style="margin-top: 8px;">
+        <div class="login-divider"></div>
+        <div style="text-align:center; margin-bottom: 16px;">
+            <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; background:var(--primary-light); color:var(--primary);">DEMO MODE</span>
+            <p style="color:var(--text-secondary); font-size:12px; margin-top:10px;">选择角色（仅用于流程与权限演示）</p>
+        </div>
+        <div class="role-grid">
+            <a href="dashboard.html?role=guest" class="card role-card">
+                <span class="role-icon">👤</span>
+                <strong>Guest</strong>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">体验用户</div>
+            </a>
+            <a href="dashboard.html?role=sale" class="card role-card">
+                <span class="role-icon">💼</span>
+                <strong>Sale</strong>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">销售顾问</div>
+            </a>
+            <a href="dashboard.html?role=worker" class="card role-card">
+                <span class="role-icon">🔧</span>
+                <strong>Worker</strong>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">洗车技师</div>
+            </a>
+            <a href="dashboard.html?role=admin" class="card role-card">
+                <span class="role-icon">⚙️</span>
+                <strong>Admin</strong>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">系统管理</div>
+            </a>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px;">
+        <!-- 语言选择器 -->
+        <div class="dropdown" style="display:inline-block; position:relative;">
+            <button type="button" class="lang-btn" @click="langMenuOpen = !langMenuOpen" :class="{ 'active': langMenuOpen }">
+                🌐 <span x-text="lang.toUpperCase()"></span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="margin-left:6px;" :style="{ transform: langMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
+                    <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div x-show="langMenuOpen"
+                 @click.away="langMenuOpen = false"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                 class="lang-dropdown">
+                <button type="button" @click="setLang('zh'); langMenuOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'zh' }">
+                    <span class="lang-flag">🇨🇳</span>
+                    <span class="lang-name">中文</span>
+                    <span class="lang-code">ZH</span>
+                </button>
+                <button type="button" @click="setLang('en'); langMenuOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'en' }">
+                    <span class="lang-flag">🇬🇧</span>
+                    <span class="lang-name">English</span>
+                    <span class="lang-code">EN</span>
+                </button>
+                <button type="button" @click="setLang('ms'); langMenuOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'ms' }">
+                    <span class="lang-flag">🇲🇾</span>
+                    <span class="lang-name">Bahasa Melayu</span>
+                    <span class="lang-code">MS</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         function setLang(newLang) {
