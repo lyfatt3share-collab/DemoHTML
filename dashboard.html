@@ -159,7 +159,9 @@
                 jobs: [
                     { id: 'J001', plate: 'B 1234 ABC', model: 'Honda City', color: 'White', ownerName: 'Tan Ah Kow', ownerPhone: '012-345 6789', status: 'inspection' },
                     { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
-                    { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' }
+                    { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' },
+                    /* 演示：工人已洗完并停入停车格，等待销售确认提车 */
+                    { id: 'J004', plate: 'P 7788 QRS', model: 'Toyota Camry', color: 'Silver', ownerName: 'Chen Wei', ownerPhone: '019-888 7766', status: 'ready' }
                 ],
 
                 get filteredJobs() {
@@ -197,9 +199,9 @@
                 },
 
                 i18n: {
-                    zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
-                    en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
-                    ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+                    zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', pending: '待处理', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
+                    en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', pending: 'Pending', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
+                    ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', pending: 'Menunggu', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
                 },
 
                 initDashboard() {
