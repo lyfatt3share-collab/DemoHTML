@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WASHFLOW — 登录</title>
+    <title>WASHFLOW</title>
     <!-- ✅ 统一使用相对路径，避免 GitHub Pages 子目录 404 -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -176,56 +176,52 @@
         }
     </style>
 </head>
-<body x-data="{ lang: localStorage.getItem('lang') || 'zh', demoOpen: false, langMenuOpen: false }"
-      x-init="if (new URLSearchParams(location.search).get('demo') === '1') demoOpen = true">
+<body x-data="loginPage()"
+      x-init="if (new URLSearchParams(location.search).get('demo') === '1') demoOpen = true; document.documentElement.lang = lang; document.title = t('pageTitle')">
     <div class="login-page-toolbar">
         <button type="button"
                 class="demo-toggle-btn"
                 @click="demoOpen = !demoOpen"
                 :aria-expanded="demoOpen"
-                x-text="demoOpen ? '隐藏演示入口' : '演示入口'"></button>
+                x-text="demoOpen ? t('demoToggleHide') : t('demoToggleShow')"></button>
     </div>
 
     <div style="text-align:center; margin: 24px 0 20px;">
         <div class="logo">🚗 WASHFLOW</div>
-        <span style="color:var(--text-secondary); font-size:14px; margin-top:8px; display:block;">登录入口（示意）</span>
-        <p style="color:var(--text-secondary); font-size:12px; margin-top:6px; line-height:1.45;">
-            正式环境将区分员工扫码与管理后台账号登录；当前无后端，下列表单仅为前端跳转演示。
-        </p>
+        <span style="color:var(--text-secondary); font-size:14px; margin-top:8px; display:block;" x-text="t('loginHeroSubtitle')"></span>
+        <p style="color:var(--text-secondary); font-size:12px; margin-top:6px; line-height:1.45;" x-text="t('loginHeroDisclaimer')"></p>
     </div>
 
     <!-- 正式登录入口（默认展示） -->
     <div class="card">
-        <div class="login-section-title">员工登录 · 手机扫码</div>
-        <p class="login-hint">
-            请使用已绑定门店的员工 App 扫描下方二维码完成登录（示意图）。接入后端后此处将展示动态二维码或唤起深度链接。
-        </p>
-        <div class="qr-placeholder" aria-label="二维码占位">
+        <div class="login-section-title" x-text="t('workerSectionTitle')"></div>
+        <p class="login-hint" x-text="t('workerSectionHint')"></p>
+        <div class="qr-placeholder" :aria-label="t('qrAria')">
             <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
                 <span class="qr-placeholder-inner" style="position:absolute; inset:8px;"></span>
                 <span style="position:relative; z-index:1; padding:4px 8px; background:var(--bg-card); border-radius:6px;">QR</span>
             </div>
         </div>
-        <p class="login-hint" style="margin-bottom:0; text-align:center;">扫码登录占位 · 非真实二维码</p>
+        <p class="login-hint" style="margin-bottom:0; text-align:center;" x-text="t('qrFootnote')"></p>
     </div>
 
     <div class="card">
-        <div class="login-section-title">管理员登录</div>
-        <p class="login-hint">使用后台账号与二次验证码登录（示意）。提交不会校验凭据。</p>
+        <div class="login-section-title" x-text="t('adminSectionTitle')"></div>
+        <p class="login-hint" x-text="t('adminSectionHint')"></p>
         <form id="admin-login-form" @submit.prevent="window.location.href='dashboard.html?role=admin'">
             <div class="form-group">
-                <label for="admin-user-id">用户名 / ID</label>
-                <input id="admin-user-id" class="form-input" type="text" name="username" autocomplete="username" placeholder="例如 admin">
+                <label for="admin-user-id" x-text="t('labelUsername')"></label>
+                <input id="admin-user-id" class="form-input" type="text" name="username" autocomplete="username" :placeholder="t('phUsername')">
             </div>
             <div class="form-group">
-                <label for="admin-password">密码</label>
-                <input id="admin-password" class="form-input" type="password" name="password" autocomplete="current-password" placeholder="••••••••">
+                <label for="admin-password" x-text="t('labelPassword')"></label>
+                <input id="admin-password" class="form-input" type="password" name="password" autocomplete="current-password" :placeholder="t('phPassword')">
             </div>
             <div class="form-group">
-                <label for="admin-2fa">2FA 验证码</label>
-                <input id="admin-2fa" class="form-input" type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="6 位动态码">
+                <label for="admin-2fa" x-text="t('label2fa')"></label>
+                <input id="admin-2fa" class="form-input" type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" :placeholder="t('ph2fa')">
             </div>
-            <button type="submit" class="btn">登录（演示跳转）</button>
+            <button type="submit" class="btn" x-text="t('loginSubmit')"></button>
         </form>
     </div>
 
@@ -233,29 +229,29 @@
     <div x-show="demoOpen" x-cloak x-transition.opacity.duration.200ms style="margin-top: 8px;">
         <div class="login-divider"></div>
         <div style="text-align:center; margin-bottom: 16px;">
-            <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; background:var(--primary-light); color:var(--primary);">DEMO MODE</span>
-            <p style="color:var(--text-secondary); font-size:12px; margin-top:10px;">选择角色（仅用于流程与权限演示）</p>
+            <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; background:var(--primary-light); color:var(--primary);" x-text="t('demoBadge')"></span>
+            <p style="color:var(--text-secondary); font-size:12px; margin-top:10px;" x-text="t('demoRoleHint')"></p>
         </div>
         <div class="role-grid">
             <a href="dashboard.html?role=guest" class="card role-card">
                 <span class="role-icon">👤</span>
                 <strong>Guest</strong>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">体验用户</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;" x-text="t('roleGuestDesc')"></div>
             </a>
             <a href="dashboard.html?role=sale" class="card role-card">
                 <span class="role-icon">💼</span>
                 <strong>Sale</strong>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">销售顾问</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;" x-text="t('roleSaleDesc')"></div>
             </a>
             <a href="dashboard.html?role=worker" class="card role-card">
                 <span class="role-icon">🔧</span>
                 <strong>Worker</strong>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">洗车技师</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;" x-text="t('roleWorkerDesc')"></div>
             </a>
             <a href="dashboard.html?role=admin" class="card role-card">
                 <span class="role-icon">⚙️</span>
                 <strong>Admin</strong>
-                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">系统管理</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;" x-text="t('roleAdminDesc')"></div>
             </a>
         </div>
     </div>
@@ -278,21 +274,21 @@
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                  class="lang-dropdown">
-                <button type="button" @click="setLang('zh'); langMenuOpen = false"
+                <button type="button" @click="switchLang('zh'); langMenuOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'zh' }">
                     <span class="lang-flag">🇨🇳</span>
                     <span class="lang-name">中文</span>
                     <span class="lang-code">ZH</span>
                 </button>
-                <button type="button" @click="setLang('en'); langMenuOpen = false"
+                <button type="button" @click="switchLang('en'); langMenuOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'en' }">
                     <span class="lang-flag">🇬🇧</span>
                     <span class="lang-name">English</span>
                     <span class="lang-code">EN</span>
                 </button>
-                <button type="button" @click="setLang('ms'); langMenuOpen = false"
+                <button type="button" @click="switchLang('ms'); langMenuOpen = false"
                         class="lang-option"
                         :class="{ 'active': lang === 'ms' }">
                     <span class="lang-flag">🇲🇾</span>
@@ -304,9 +300,99 @@
     </div>
 
     <script>
-        function setLang(newLang) {
-            localStorage.setItem('lang', newLang);
-            window.location.reload();
+        function loginPage() {
+            return {
+                lang: localStorage.getItem('lang') || 'zh',
+                demoOpen: false,
+                langMenuOpen: false,
+                i18n: {
+                    zh: {
+                        pageTitle: 'WASHFLOW — 登录',
+                        demoToggleHide: '隐藏演示入口',
+                        demoToggleShow: '演示入口',
+                        loginHeroSubtitle: '登录入口（示意）',
+                        loginHeroDisclaimer: '正式环境将区分员工扫码与管理后台账号登录；当前无后端，下列表单仅为前端跳转演示。',
+                        workerSectionTitle: '员工登录 · 手机扫码',
+                        workerSectionHint: '请使用已绑定门店的员工 App 扫描下方二维码完成登录（示意图）。接入后端后此处将展示动态二维码或唤起深度链接。',
+                        qrAria: '二维码占位',
+                        qrFootnote: '扫码登录占位 · 非真实二维码',
+                        adminSectionTitle: '管理员登录',
+                        adminSectionHint: '使用后台账号与二次验证码登录（示意）。提交不会校验凭据。',
+                        labelUsername: '用户名 / ID',
+                        phUsername: '例如 admin',
+                        labelPassword: '密码',
+                        phPassword: '••••••••',
+                        label2fa: '2FA 验证码',
+                        ph2fa: '6 位动态码',
+                        loginSubmit: '登录（演示跳转）',
+                        demoBadge: 'DEMO MODE',
+                        demoRoleHint: '选择角色（仅用于流程与权限演示）',
+                        roleGuestDesc: '体验用户',
+                        roleSaleDesc: '销售顾问',
+                        roleWorkerDesc: '洗车技师',
+                        roleAdminDesc: '系统管理'
+                    },
+                    en: {
+                        pageTitle: 'WASHFLOW — Sign in',
+                        demoToggleHide: 'Hide demo entry',
+                        demoToggleShow: 'Demo entry',
+                        loginHeroSubtitle: 'Sign-in (demo)',
+                        loginHeroDisclaimer: 'Production separates staff QR sign-in and admin account login. No backend here—the forms below only demo navigation.',
+                        workerSectionTitle: 'Staff · Scan QR',
+                        workerSectionHint: 'Use the store-bound staff app to scan the QR (illustration). With a backend, this becomes a live QR or deep link.',
+                        qrAria: 'QR placeholder',
+                        qrFootnote: 'Placeholder · not a real QR code',
+                        adminSectionTitle: 'Admin sign-in',
+                        adminSectionHint: 'Account plus one-time code (demo). Credentials are not validated.',
+                        labelUsername: 'Username / ID',
+                        phUsername: 'e.g. admin',
+                        labelPassword: 'Password',
+                        phPassword: '••••••••',
+                        label2fa: '2FA code',
+                        ph2fa: '6-digit code',
+                        loginSubmit: 'Sign in (demo)',
+                        demoBadge: 'DEMO MODE',
+                        demoRoleHint: 'Pick a role for flow & permission demo',
+                        roleGuestDesc: 'Guest',
+                        roleSaleDesc: 'Sales',
+                        roleWorkerDesc: 'Washer',
+                        roleAdminDesc: 'Admin'
+                    },
+                    ms: {
+                        pageTitle: 'WASHFLOW — Log masuk',
+                        demoToggleHide: 'Sembunyi demo',
+                        demoToggleShow: 'Masuk demo',
+                        loginHeroSubtitle: 'Log masuk (demo)',
+                        loginHeroDisclaimer: 'Persekitaran sebenar memisahkan log masuk QR kakitangan dan akaun admin. Tiada backend—borang di bawah hanya navigasi demo.',
+                        workerSectionTitle: 'Kakitangan · Imbas QR',
+                        workerSectionHint: 'Gunakan apl kakitangan kedai untuk imbas QR (ilustrasi). Dengan backend, QR atau pautan dalam akan dibuka.',
+                        qrAria: 'Placeholder QR',
+                        qrFootnote: 'Placeholder · bukan QR sebenar',
+                        adminSectionTitle: 'Log masuk admin',
+                        adminSectionHint: 'Akaun + kod sekali guna (demo). Tiada pengesahan.',
+                        labelUsername: 'Nama pengguna / ID',
+                        phUsername: 'cth. admin',
+                        labelPassword: 'Kata laluan',
+                        phPassword: '••••••••',
+                        label2fa: 'Kod 2FA',
+                        ph2fa: '6 digit',
+                        loginSubmit: 'Log masuk (demo)',
+                        demoBadge: 'MOD DEMO',
+                        demoRoleHint: 'Pilih peranan untuk demo aliran',
+                        roleGuestDesc: 'Tetamu',
+                        roleSaleDesc: 'Jualan',
+                        roleWorkerDesc: 'Pencuci',
+                        roleAdminDesc: 'Pentadbir'
+                    }
+                },
+                t(key) {
+                    return this.i18n[this.lang]?.[key] || key;
+                },
+                switchLang(newLang) {
+                    localStorage.setItem('lang', newLang);
+                    window.location.reload();
+                }
+            };
         }
     </script>
 

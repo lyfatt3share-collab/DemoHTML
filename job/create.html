@@ -6,79 +6,140 @@
     <title>创建订单</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <style>
+        .header-lang-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .header-lang-wrap .lang-dropdown {
+            bottom: auto;
+            top: calc(100% + 8px);
+            left: auto;
+            right: 0;
+            transform: none;
+        }
+        .header-lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+        }
+        .header-lang-btn:hover { background: var(--bg-page); }
+    </style>
 </head>
 <!-- ✅ 数据结构已更新：加入 ownerName 和 ownerPhone -->
-<body x-data="createData()" style="padding-bottom:80px;">
+<body x-data="createData()" x-init="initCreate()" style="padding-bottom:80px;">
     <div class="header">
         <button class="btn btn-outline" style="width:auto; padding:6px 10px;" @click="goDashboard()">←</button>
-        <strong>创建洗车任务</strong>
-        <div style="width:24px;"></div>
+        <strong x-text="t('createHeading')"></strong>
+        <div class="header-lang-wrap">
+            <button type="button"
+                    class="header-lang-btn nav-lang-btn"
+                    @click="langOpen = !langOpen"
+                    :aria-expanded="langOpen">
+                🌐
+                <svg width="8" height="8" viewBox="0 0 12 12" fill="none" :style="{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
+                    <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div x-show="langOpen"
+                 @click.away="langOpen = false"
+                 x-transition
+                 class="lang-dropdown">
+                <button type="button" @click="switchLang('zh'); langOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'zh' }">
+                    <span class="lang-flag">🇨🇳</span>
+                    <span class="lang-name">中文</span>
+                    <span class="lang-code">ZH</span>
+                </button>
+                <button type="button" @click="switchLang('en'); langOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'en' }">
+                    <span class="lang-flag">🇬🇧</span>
+                    <span class="lang-name">English</span>
+                    <span class="lang-code">EN</span>
+                </button>
+                <button type="button" @click="switchLang('ms'); langOpen = false"
+                        class="lang-option"
+                        :class="{ 'active': lang === 'ms' }">
+                    <span class="lang-flag">🇲🇾</span>
+                    <span class="lang-name">Bahasa Melayu</span>
+                    <span class="lang-code">MS</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <form @submit.prevent="submitForm()">
 
         <div class="form-group">
-            <label>服务日期 *</label>
+            <label x-text="t('labelServiceDate')"></label>
             <input type="date" x-model="serviceDate" class="form-input" required>
         </div>
 
 
         <div class="form-group">
-            <label>Car Dealer（B2B, 可选）</label>
+            <label x-text="t('labelDealer')"></label>
             <input type="text"
                    x-model="dealer"
                    class="form-input"
-                   placeholder="例如：Toyota Cheras">
+                   :placeholder="t('phDealer')">
         </div>
 
 
         <div class="form-group">
-            <label>车牌号码 *</label>
-            <input type="text" x-model="plate" class="form-input" placeholder="例: B 1234 ABC" required style="text-transform:uppercase;">
+            <label x-text="t('labelPlate')"></label>
+            <input type="text" x-model="plate" class="form-input" :placeholder="t('phPlate')" required style="text-transform:uppercase;">
         </div>
 
         <!-- ✅ 新增：车主姓名 -->
         <div class="form-group">
-            <label>车主姓名 *</label>
-            <input type="text" x-model="ownerName" class="form-input" placeholder="例: Tan Ah Kow" required>
+            <label x-text="t('labelOwnerName')"></label>
+            <input type="text" x-model="ownerName" class="form-input" :placeholder="t('phOwnerName')" required>
         </div>
 
         <!-- ✅ 新增：联系电话 (type="tel" 弹出数字键盘) -->
         <div class="form-group">
-            <label>联系电话 *</label>
-            <input type="tel" x-model="ownerPhone" class="form-input" placeholder="例: 012-345 6789" required>
+            <label x-text="t('labelOwnerPhone')"></label>
+            <input type="tel" x-model="ownerPhone" class="form-input" :placeholder="t('phOwnerPhone')" required>
         </div>
 
         <div class="form-group">
-            <label>车型 & 颜色</label>
+            <label x-text="t('labelModelColor')"></label>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <input type="text" x-model="model" class="form-input" placeholder="车型" required>
-                <input type="text" x-model="color" class="form-input" placeholder="颜色" required>
+                <input type="text" x-model="model" class="form-input" :placeholder="t('phModel')" required>
+                <input type="text" x-model="color" class="form-input" :placeholder="t('phColor')" required>
             </div>
         </div>
 
         <div class="form-group">
-            <label>服务项目 *</label>
+            <label x-text="t('labelServices')"></label>
 
-            <label><input type="checkbox" value="wash" x-model="services"> 洗车</label>
-            <label><input type="checkbox" value="vacuum" x-model="services"> 吸尘</label>
-            <label><input type="checkbox" value="wash_vacuum" x-model="services"> 洗车 + 吸尘</label>
-            <label><input type="checkbox" value="wax" x-model="services"> 打蜡</label>
-            <label><input type="checkbox" value="polish" x-model="services"> Polish / Coating</label>
+            <label><input type="checkbox" value="wash" x-model="services"> <span x-text="t('svcWash')"></span></label>
+            <label><input type="checkbox" value="vacuum" x-model="services"> <span x-text="t('svcVacuum')"></span></label>
+            <label><input type="checkbox" value="wash_vacuum" x-model="services"> <span x-text="t('svcWashVacuum')"></span></label>
+            <label><input type="checkbox" value="wax" x-model="services"> <span x-text="t('svcWax')"></span></label>
+            <label><input type="checkbox" value="polish" x-model="services"> <span x-text="t('svcPolish')"></span></label>
         </div>
 
         <div class="form-group">
-            <label>备注</label>
-            <textarea x-model="remark" class="form-textarea" rows="3" placeholder="客户特殊要求..."></textarea>
+            <label x-text="t('labelRemark')"></label>
+            <textarea x-model="remark" class="form-textarea" rows="3" :placeholder="t('phRemark')"></textarea>
         </div>
 
-        <button type="submit" class="btn" :disabled="loading" x-text="loading ? '提交中...' : '提交订单'"></button>
+        <button type="submit" class="btn" :disabled="loading" x-text="loading ? t('btnSubmitting') : t('btnSubmit')"></button>
     </form>
 
 
     <script>
         function createData() {
             return {
+                lang: localStorage.getItem('lang') || 'zh',
+                langOpen: false,
                 role: new URLSearchParams(location.search).get('role') || 'guest',
 
                 plate: '',
@@ -91,23 +152,128 @@
                 serviceDate: '',
                 dealer: '',
 
-                // ✅ 核心：服务项目 array
                 services: [],
 
                 remark: '',
                 loading: false,
 
+                i18n: {
+                    zh: {
+                        pageTitle: 'WASHFLOW — 创建订单',
+                        createHeading: '创建洗车任务',
+                        labelServiceDate: '服务日期 *',
+                        labelDealer: 'Car Dealer（B2B，可选）',
+                        phDealer: '例如：Toyota Cheras',
+                        labelPlate: '车牌号码 *',
+                        phPlate: '例: B 1234 ABC',
+                        labelOwnerName: '车主姓名 *',
+                        phOwnerName: '例: Tan Ah Kow',
+                        labelOwnerPhone: '联系电话 *',
+                        phOwnerPhone: '例: 012-345 6789',
+                        labelModelColor: '车型 & 颜色',
+                        phModel: '车型',
+                        phColor: '颜色',
+                        labelServices: '服务项目 *',
+                        svcWash: '洗车',
+                        svcVacuum: '吸尘',
+                        svcWashVacuum: '洗车 + 吸尘',
+                        svcWax: '打蜡',
+                        svcPolish: '抛光 / 镀膜',
+                        labelRemark: '备注',
+                        phRemark: '客户特殊要求...',
+                        btnSubmit: '提交订单',
+                        btnSubmitting: '提交中...',
+                        alertSelectService: '请选择至少一个服务项目',
+                        logSubmitPayload: '提交数据:',
+                    },
+                    en: {
+                        pageTitle: 'WASHFLOW — Create Job',
+                        createHeading: 'Create wash job',
+                        labelServiceDate: 'Service date *',
+                        labelDealer: 'Car dealer (B2B, optional)',
+                        phDealer: 'e.g. Toyota Cheras',
+                        labelPlate: 'Plate number *',
+                        phPlate: 'e.g. B 1234 ABC',
+                        labelOwnerName: 'Owner name *',
+                        phOwnerName: 'e.g. Tan Ah Kow',
+                        labelOwnerPhone: 'Contact phone *',
+                        phOwnerPhone: 'e.g. 012-345 6789',
+                        labelModelColor: 'Model & colour',
+                        phModel: 'Model',
+                        phColor: 'Colour',
+                        labelServices: 'Services *',
+                        svcWash: 'Wash',
+                        svcVacuum: 'Vacuum',
+                        svcWashVacuum: 'Wash + vacuum',
+                        svcWax: 'Wax',
+                        svcPolish: 'Polish / coating',
+                        labelRemark: 'Notes',
+                        phRemark: 'Special requests...',
+                        btnSubmit: 'Submit',
+                        btnSubmitting: 'Submitting...',
+                        alertSelectService: 'Select at least one service.',
+                        logSubmitPayload: 'Submit payload:',
+                    },
+                    ms: {
+                        pageTitle: 'WASHFLOW — Cipta Tempahan',
+                        createHeading: 'Cipta kerja cuci',
+                        labelServiceDate: 'Tarikh perkhidmatan *',
+                        labelDealer: 'Penjual kereta (B2B, pilihan)',
+                        phDealer: 'cth. Toyota Cheras',
+                        labelPlate: 'Nombor plat *',
+                        phPlate: 'cth. B 1234 ABC',
+                        labelOwnerName: 'Nama pemilik *',
+                        phOwnerName: 'cth. Tan Ah Kow',
+                        labelOwnerPhone: 'Telefon hubungan *',
+                        phOwnerPhone: 'cth. 012-345 6789',
+                        labelModelColor: 'Model & warna',
+                        phModel: 'Model',
+                        phColor: 'Warna',
+                        labelServices: 'Perkhidmatan *',
+                        svcWash: 'Cuci',
+                        svcVacuum: 'Vakum',
+                        svcWashVacuum: 'Cuci + vakum',
+                        svcWax: 'Lilin',
+                        svcPolish: 'Polit / salutan',
+                        labelRemark: 'Catatan',
+                        phRemark: 'Permintaan khas...',
+                        btnSubmit: 'Hantar',
+                        btnSubmitting: 'Menghantar...',
+                        alertSelectService: 'Pilih sekurang-kurangnya satu perkhidmatan.',
+                        logSubmitPayload: 'Data dihantar:',
+                    },
+                },
+
+                t(key) {
+                    return this.i18n[this.lang]?.[key] || key;
+                },
+
+                setLang(lang) {
+                    this.lang = lang;
+                    localStorage.setItem('lang', lang);
+                },
+
+                switchLang(lang) {
+                    this.setLang(lang);
+                    window.location.reload();
+                },
+
+                initCreate() {
+                    document.documentElement.lang = this.lang;
+                    document.title = this.t('pageTitle');
+                },
+
                 goDashboard() {
-                    window.location.href = `../dashboard.html?role=${this.role}`
+                    window.location.href = `../dashboard.html?role=${this.role}`;
                 },
 
                 submitForm() {
                     if (this.services.length === 0) {
-                        alert('请选择至少一个服务项目')
-                        return
+                        alert(this.t('alertSelectService'));
+                        return;
                     }
 
-                    this.loading = true
+                    this.loading = true;
 
                     const payload = {
                         plate: this.plate,
@@ -122,15 +288,15 @@
 
                         services: this.services,
                         remark: this.remark,
-                    }
+                    };
 
-                    console.log('提交数据:', payload)
+                    console.log(this.t('logSubmitPayload'), payload);
 
                     setTimeout(() => {
-                        this.goDashboard()
-                    }, 600)
-                }
-            }
+                        this.goDashboard();
+                    }, 600);
+                },
+            };
         }
     </script>
 

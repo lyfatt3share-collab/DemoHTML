@@ -17,15 +17,23 @@
         .hint-muted { font-size: 12px; color: var(--text-secondary); margin-top: 8px; line-height: 1.5; }
         .note-item { background: var(--bg-page); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
         .note-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+        .inspect-photo-input { margin-top: 8px; font-size: 13px; max-width: 100%; }
+        .inspect-photo-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .inspect-photo-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px; background: var(--bg-page); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+        .inspect-photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; flex-shrink: 0; border: 1px solid var(--border); }
+        .inspect-photo-meta { flex: 1; min-width: 0; font-size: 13px; line-height: 1.45; }
+        .inspect-photo-name { font-weight: 500; word-break: break-all; }
+        .inspect-photo-size { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .inspect-photo-remove { flex-shrink: 0; font-size: 12px; padding: 6px 10px; }
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body x-data="detailData()" x-init="initDetail()" style="padding-bottom:100px;">
+<body x-data="detailData()" x-init="initDetail(); document.documentElement.lang = lang; document.title = t('pageTitle')" style="padding-bottom:100px;">
     <!-- 顶部栏 -->
     <div class="header">
         <button class="btn btn-outline" style="width:auto; padding:6px 10px;" @click="goDashboard()">←</button>
-        <strong>任务详情</strong>
-        <span class="tag" :class="status" x-text="statusNames[status] || status"></span>
+        <strong x-text="t('detailTitle')"></strong>
+        <span class="tag" :class="status" x-text="t(status)"></span>
     </div>
 
     <!-- ✅ 车辆 & 车主信息卡片 -->
@@ -41,7 +49,7 @@
         </p>
 
         <p style="font-size:13px; color:var(--text-secondary);">
-            工单 ID：<strong x-text="job.id"></strong>
+            <span x-text="t('jobIdLabel')"></span><strong x-text="job.id"></strong>
         </p>
 
         <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
@@ -57,7 +65,7 @@
 
         <template x-if="job.remark">
             <div style="margin-top:12px; font-size:13px; color:var(--text-secondary);">
-                📝 备注：<span x-text="job.remark"></span>
+                📝 <span x-text="t('remarkPrefix')"></span><span x-text="job.remark"></span>
             </div>
         </template>
     </div>
@@ -65,16 +73,10 @@
     <!-- 洗前阶段：非工人只读 -->
     <template x-if="role !== 'worker' && isPreWashPhase()">
         <div class="card">
-            <h3 style="margin-bottom:8px;">洗前阶段 / Pre-wash</h3>
-            <p style="font-size:14px; color:var(--text-secondary); line-height:1.6;">
-                仅工人（worker）可在此工单执行车辆检查与开始清洗。当前角色为只读。
-            </p>
-            <p class="hint-muted" x-show="status === 'pending'">
-                状态：待处理 — 等待工人接单并完成检查清单。
-            </p>
-            <p class="hint-muted" x-show="status === 'inspection'">
-                状态：检查中 — 工人正在记录车况。
-            </p>
+            <h3 style="margin-bottom:8px;" x-text="t('prewashTitle')"></h3>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.6;" x-text="t('prewashBody')"></p>
+            <p class="hint-muted" x-show="status === 'pending'" x-text="t('prewashHintPending')"></p>
+            <p class="hint-muted" x-show="status === 'inspection'" x-text="t('prewashHintInspection')"></p>
         </div>
     </template>
 
@@ -83,95 +85,122 @@
         <div class="card">
             <div class="inspect-head" style="margin-bottom:12px;">
                 <div>
-                    <h3 class="inspect-title" style="font-size:16px;">Vehicle inspection · 车辆检查</h3>
-                    <p class="inspect-sub">完成下列项目并确认无异常后，方可开始清洗。</p>
+                    <h3 class="inspect-title" style="font-size:16px;" x-text="t('inspectTitle')"></h3>
+                    <p class="inspect-sub" x-text="t('inspectSub')"></p>
                 </div>
             </div>
 
             <!-- 划痕 / 凹痕 -->
             <div class="inspect-row">
                 <div class="inspect-head">
-                    <span class="inspect-title">Scratches / dents · 划痕与凹痕</span>
-                    <span class="badge-issue" x-show="inspection.scratches === 'needs_confirmation'">需确认</span>
+                    <span class="inspect-title" x-text="t('inspectScratches')"></span>
+                    <span class="badge-issue" x-show="inspection.scratches === 'needs_confirmation'" x-text="t('badgeNeedsConfirm')"></span>
                 </div>
                 <select class="form-select" x-model="inspection.scratches">
-                    <option value="">— 请选择 —</option>
-                    <option value="none_or_minor">无明显损伤 / 轻微（可清洗）</option>
-                    <option value="documented_ok">已记录，客户已知悉（可清洗）</option>
-                    <option value="needs_confirmation">异常 — 需经理与客户确认</option>
+                    <option value="" x-text="t('selectPlaceholder')"></option>
+                    <option value="none_or_minor" x-text="t('scratchOptNone')"></option>
+                    <option value="documented_ok" x-text="t('scratchOptDocumented')"></option>
+                    <option value="needs_confirmation" x-text="t('scratchOptConfirm')"></option>
                 </select>
             </div>
 
             <!-- 油污 -->
             <div class="inspect-row">
                 <div class="inspect-head">
-                    <span class="inspect-title">Greasing / oil · 油污程度</span>
-                    <span class="badge-issue" x-show="inspection.grease === 'heavy'">重点污渍</span>
+                    <span class="inspect-title" x-text="t('inspectGrease')"></span>
+                    <span class="badge-issue" x-show="inspection.grease === 'heavy'" x-text="t('badgeHeavy')"></span>
                 </div>
                 <select class="form-select" x-model="inspection.grease">
-                    <option value="">— 请选择 —</option>
-                    <option value="light">轻</option>
-                    <option value="medium">中</option>
-                    <option value="heavy">重（不可直接开洗，需经理与客户确认）</option>
+                    <option value="" x-text="t('selectPlaceholder')"></option>
+                    <option value="light" x-text="t('greaseOptLight')"></option>
+                    <option value="medium" x-text="t('greaseOptMedium')"></option>
+                    <option value="heavy" x-text="t('greaseOptHeavy')"></option>
                 </select>
             </div>
 
             <!-- 内饰 -->
             <div class="inspect-row">
                 <div class="inspect-head">
-                    <span class="inspect-title">Interior · 内饰情况</span>
-                    <span class="badge-issue" x-show="inspection.interior === 'poor'">需确认</span>
+                    <span class="inspect-title" x-text="t('inspectInterior')"></span>
+                    <span class="badge-issue" x-show="inspection.interior === 'poor'" x-text="t('badgeNeedsConfirm')"></span>
                 </div>
                 <select class="form-select" x-model="inspection.interior">
-                    <option value="">— 请选择 —</option>
-                    <option value="good">良好</option>
-                    <option value="fair">一般</option>
-                    <option value="poor">较差 / 有损坏风险（需经理与客户确认）</option>
+                    <option value="" x-text="t('selectPlaceholder')"></option>
+                    <option value="good" x-text="t('interiorOptGood')"></option>
+                    <option value="fair" x-text="t('interiorOptFair')"></option>
+                    <option value="poor" x-text="t('interiorOptPoor')"></option>
                 </select>
             </div>
 
             <!-- 车内物品 -->
             <div class="inspect-row">
                 <div class="inspect-head">
-                    <span class="inspect-title">Belongings · 个人物品 / 贵重物品</span>
-                    <span class="badge-issue" x-show="inspection.belongings === 'issue'">需确认</span>
+                    <span class="inspect-title" x-text="t('inspectBelongings')"></span>
+                    <span class="badge-issue" x-show="inspection.belongings === 'issue'" x-text="t('badgeNeedsConfirm')"></span>
                 </div>
                 <select class="form-select" x-model="inspection.belongings">
-                    <option value="">— 请选择 —</option>
-                    <option value="none_visible">未见明显物品</option>
-                    <option value="customer_notified">有物品，已提醒客户收好</option>
-                    <option value="issue">有贵重物品或争议（需经理与客户确认）</option>
+                    <option value="" x-text="t('selectPlaceholder')"></option>
+                    <option value="none_visible" x-text="t('belongingsOptNone')"></option>
+                    <option value="customer_notified" x-text="t('belongingsOptNotified')"></option>
+                    <option value="issue" x-text="t('belongingsOptIssue')"></option>
                 </select>
             </div>
 
-            <!-- 照片 / 备注确认 -->
+            <!-- 照片上传（多选） -->
             <div class="inspect-row">
                 <div class="inspect-head">
-                    <span class="inspect-title">Photos / notes · 照片与备注确认</span>
+                    <span class="inspect-title" x-text="t('inspectPhotos')"></span>
                 </div>
-                <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px;">
-                    <input type="checkbox" x-model="inspection.photoAck" style="margin-top:3px;">
-                    <span>已拍照或已在工单中备注关键车况（演示勾选）</span>
-                </label>
+                <label style="display:block; font-size:13px; font-weight:500; margin-bottom:6px;" x-text="t('uploadPhotosLabel')"></label>
+                <input type="file"
+                       class="inspect-photo-input"
+                       accept="image/*"
+                       multiple
+                       @change="addInspectionPhotos($event)">
+                <p class="hint-muted" style="margin-top:8px;" x-text="t('inspectPhotoDemoHint')"></p>
+                <template x-if="inspectionPhotos.length === 0">
+                    <p class="hint-muted" style="margin-top:6px;" x-text="t('inspectPhotoEmptyHint')"></p>
+                </template>
+                <div class="inspect-photo-list" x-show="inspectionPhotos.length > 0">
+                    <template x-for="(p, idx) in inspectionPhotos" :key="p.id">
+                        <div class="inspect-photo-row">
+                            <img class="inspect-photo-thumb" :src="p.previewUrl" :alt="p.name">
+                            <div class="inspect-photo-meta">
+                                <div class="inspect-photo-name" x-text="p.name"></div>
+                                <div class="inspect-photo-size">
+                                    <span x-text="formatFileSize(p.size)"></span>
+                                    <span x-show="p.type"> · </span>
+                                    <span x-text="p.type"></span>
+                                </div>
+                                <div class="hint-muted" style="margin-top:6px; font-size:11px;" x-text="p.demoBinaryNote"></div>
+                            </div>
+                            <button type="button"
+                                    class="btn btn-outline inspect-photo-remove"
+                                    @click="removeInspectionPhoto(idx)"
+                                    x-text="t('removePhoto')">
+                            </button>
+                        </div>
+                    </template>
+                </div>
             </div>
 
             <!-- 整体异常 -->
             <div class="form-group" style="margin-top:8px; margin-bottom:0;">
                 <label style="display:flex; gap:10px; align-items:center; font-size:14px; cursor:pointer;">
                     <input type="checkbox" x-model="inspection.overallAbnormal">
-                    <span>Overall abnormal · 整体标记异常（禁止清洗，需经理介入）</span>
+                    <span x-text="t('overallAbnormalLabel')"></span>
                 </label>
             </div>
 
             <!-- 备注列表 -->
             <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
                 <label class="form-group" style="margin-bottom:8px;">
-                    <span style="display:block; margin-bottom:6px; font-weight:500; font-size:14px;">Notes · 备注</span>
-                    <textarea class="form-textarea" rows="2" x-model="noteDraft" placeholder="检查完成后可追加备注…"></textarea>
+                    <span style="display:block; margin-bottom:6px; font-weight:500; font-size:14px;" x-text="t('notesLabel')"></span>
+                    <textarea class="form-textarea" rows="2" x-model="noteDraft" :placeholder="t('notePlaceholder')"></textarea>
                 </label>
-                <button type="button" class="btn btn-outline" style="width:auto; padding:8px 14px; margin-bottom:12px;" @click="addNote()">Add note · 添加备注</button>
+                <button type="button" class="btn btn-outline" style="width:auto; padding:8px 14px; margin-bottom:12px;" @click="addNote()" x-text="t('addNote')"></button>
                 <template x-if="workerNotes.length === 0">
-                    <p class="hint-muted">暂无工人备注。</p>
+                    <p class="hint-muted" x-text="t('noWorkerNotes')"></p>
                 </template>
                 <template x-for="(n, idx) in workerNotes" :key="idx">
                     <div class="note-item">
@@ -183,35 +212,29 @@
 
             <!-- 异常提示 -->
             <div class="alert-block" x-show="hasInspectionAbnormal()" x-cloak>
-                <strong>无法开始清洗</strong><br>
-                存在异常或需确认项：须由经理联系客户确认情况后，方可继续。请勿擅自开洗。
+                <strong x-text="t('alertCannotWashTitle')"></strong><br>
+                <span x-text="t('alertCannotWashBody')"></span>
             </div>
 
-            <p class="hint-muted" x-show="!inspectionComplete() && !hasInspectionAbnormal()">
-                请完成所有检查项并勾选照片/备注确认后，「开始清洗」将可用。
-            </p>
-            <p class="hint-muted" x-show="inspectionComplete() && !hasInspectionAbnormal()">
-                检查已完成且无异常，可以开始清洗。
-            </p>
+            <p class="hint-muted" x-show="!inspectionComplete() && !hasInspectionAbnormal()" x-text="t('hintFinishInspectionPhotos')"></p>
+            <p class="hint-muted" x-show="inspectionComplete() && !hasInspectionAbnormal()" x-text="t('hintInspectionOk')"></p>
 
             <button type="button"
                     class="btn btn-outline"
                     style="margin-top:12px; border-color:#FECACA; color:#B91C1C;"
                     x-show="hasInspectionAbnormal()"
-                    @click="requestManagerConfirmation()">
-                Request manager confirmation · 请求经理确认
+                    @click="requestManagerConfirmation()"
+                    x-text="t('requestManagerBtn')">
             </button>
-            <p class="hint-muted" x-show="managerConfirmRequested" style="color:var(--status-inspection);">
-                已向经理发送确认请求（演示状态，无真实发送）。
-            </p>
+            <p class="hint-muted" x-show="managerConfirmRequested" style="color:var(--status-inspection);" x-text="t('managerRequestedHint')"></p>
 
             <button type="button"
                     class="btn"
                     style="margin-top:12px;"
                     :disabled="!canStartWash()"
                     :title="washBlockedReason()"
-                    @click="status = 'washing'">
-                Start washing · 开始清洗
+                    @click="status = 'washing'"
+                    x-text="t('startWashBtn')">
             </button>
             <p class="hint-muted" x-show="!canStartWash() && inspectionComplete()" x-text="washBlockedReason()"></p>
         </div>
@@ -219,30 +242,92 @@
 
     <!-- 🔵 清洗中 -->
     <template x-if="status === 'washing'">
-        <div class="card" style="text-align:center;">
-            <div style="font-size:40px; margin:20px 0;">💧</div>
-            <h3>清洗进行中...</h3>
-            <button class="btn" @click="status='ready'" style="margin-top:16px;" x-show="role==='worker'">✨ 标记完成</button>
+        <div class="card">
+            <div style="text-align:center;">
+                <div style="font-size:40px; margin:20px 0;">💧</div>
+                <h3 x-text="t('washingTitle')"></h3>
+            </div>
+
+            <template x-if="role === 'worker'">
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                    <label class="form-group" style="margin-bottom:8px;">
+                        <span style="display:block; margin-bottom:6px; font-weight:500; font-size:14px;" x-text="t('parkingLabel')"></span>
+                        <input type="text"
+                               class="form-input"
+                               x-model="parkingBayNote"
+                               :placeholder="t('parkingPlaceholder')">
+                    </label>
+                    <p class="hint-muted" x-text="t('parkingHint')"></p>
+                    <button type="button"
+                            class="btn"
+                            style="margin-top:16px; width:100%;"
+                            :disabled="!canCompleteWashTask()"
+                            :title="completeWashBlockedReason()"
+                            @click="completeWashTask()"
+                            x-text="t('completeWashBtn')">
+                    </button>
+                    <p class="hint-muted" style="margin-top:8px;" x-show="!canCompleteWashTask()" x-text="completeWashBlockedReason()"></p>
+                </div>
+            </template>
+
+            <template x-if="role !== 'worker'">
+                <p class="hint-muted" style="text-align:center; margin-top:16px;" x-text="t('nonWorkerWashingHint')"></p>
+            </template>
         </div>
     </template>
 
-    <!-- 🟢 可提车 / 付款 -->
+    <!-- 🟢 可提车（无付款步骤；销售在此确认提车） -->
     <template x-if="status === 'ready'">
         <div class="card">
-            <h3 style="color:var(--status-ready);">🟢 车辆已准备好</h3>
-            <button class="btn" style="margin-top:16px;" @click="status='paid'">💳 <span x-text="role==='guest'?'立即支付':'代客支付'"></span></button>
+            <h3 style="color:var(--status-ready);" x-text="t('readyTitle')"></h3>
+            <p class="hint-muted" style="margin-top:8px;" x-text="t('readySubtitle')"></p>
+
+            <div class="note-item" style="margin-top:12px;" x-show="washSummaryVisible()">
+                <div class="note-meta" x-text="t('handoverMeta')"></div>
+                <div><strong x-text="t('parkingKey')"></strong><span x-text="parkingBayNote || t('dash')"></span></div>
+                <div style="margin-top:6px;"><strong x-text="t('washCompletedKey')"></strong><span x-text="washCompletedAt || t('dash')"></span></div>
+            </div>
+
+            <template x-if="role === 'sale' || role === 'admin'">
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                    <h3 style="margin-bottom:8px; font-size:16px;" x-text="t('pickupTitle')"></h3>
+                    <div style="background:var(--bg-page); padding:12px; border-radius:8px; margin:12px 0; font-size:14px; line-height:1.6;" x-text="t('pickupBody')"></div>
+                    <label style="display:flex; gap:8px; margin-bottom:8px;"><input type="checkbox" x-model="ackChecked"> <span x-text="t('pickupCheckbox')"></span></label>
+                    <p class="hint-muted"
+                       style="margin:8px 0 12px; padding:10px 12px; background:var(--primary-light); border-radius:8px; border:1px solid var(--primary); color:var(--text-primary); line-height:1.55;"
+                       x-show="ackChecked"
+                       x-text="t('pickupInvoiceThanks')"></p>
+                    <button type="button" class="btn" :disabled="!ackChecked" @click="status='completed'" x-text="t('pickupConfirmBtn')"></button>
+                </div>
+            </template>
+
+            <template x-if="role === 'worker'">
+                <p class="hint-muted" style="margin-top:12px;" x-text="t('workerWaitSaleHint')"></p>
+            </template>
         </div>
     </template>
 
-    <!-- 📄 Sale: 确认提车 -->
-    <template x-if="status === 'paid' && role==='sale'">
+    <!-- 兼容旧演示链接：曾付款状态并入「可提车」逻辑，此处引导销售在同一界面确认 -->
+    <template x-if="status === 'paid'">
         <div class="card">
-            <h3>📄 提车确认文件</h3>
-            <div style="background:var(--bg-page); padding:12px; border-radius:8px; margin:12px 0; font-size:14px; line-height:1.6;">
-                客户已确认付款。车辆状况良好。本人确认已将车辆交还客户。
+            <h3 style="color:var(--status-ready);" x-text="t('readyTitle')"></h3>
+            <p class="hint-muted" x-text="t('paidLegacyHint')"></p>
+            <div class="note-item" style="margin-top:12px;" x-show="washSummaryVisible()">
+                <div class="note-meta" x-text="t('handoverMeta')"></div>
+                <div><strong x-text="t('parkingKey')"></strong><span x-text="parkingBayNote || t('dash')"></span></div>
+                <div style="margin-top:6px;"><strong x-text="t('washCompletedKey')"></strong><span x-text="washCompletedAt || t('dash')"></span></div>
             </div>
-            <label style="display:flex; gap:8px; margin-bottom:8px;"><input type="checkbox" x-model="ackChecked"> 确认已提车且文件无误</label>
-            <button class="btn" :disabled="!ackChecked" @click="status='completed'">✅ 确认提车</button>
+            <template x-if="role === 'sale' || role === 'admin'">
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                    <h3 style="margin-bottom:8px; font-size:16px;" x-text="t('pickupTitle')"></h3>
+                    <label style="display:flex; gap:8px; margin-bottom:8px;"><input type="checkbox" x-model="ackChecked"> <span x-text="t('pickupCheckbox')"></span></label>
+                    <p class="hint-muted"
+                       style="margin:8px 0 12px; padding:10px 12px; background:var(--primary-light); border-radius:8px; border:1px solid var(--primary); color:var(--text-primary); line-height:1.55;"
+                       x-show="ackChecked"
+                       x-text="t('pickupInvoiceThanks')"></p>
+                    <button type="button" class="btn" :disabled="!ackChecked" @click="status='completed'" x-text="t('pickupConfirmBtn')"></button>
+                </div>
+            </template>
         </div>
     </template>
 
@@ -250,8 +335,13 @@
     <template x-if="status === 'completed'">
         <div class="card" style="text-align:center; border:2px solid var(--status-completed);">
             <div style="font-size:40px; margin:20px 0;">🎉</div>
-            <h3 style="color:var(--status-completed);">任务已完成</h3>
-            <button class="btn btn-outline" style="margin-top:16px;">返回仪表盘</button>
+            <h3 style="color:var(--status-completed);" x-text="t('completedTitle')"></h3>
+            <div class="note-item" style="margin-top:12px; text-align:left;" x-show="washSummaryVisible()">
+                <div class="note-meta" x-text="t('handoverMeta')"></div>
+                <div><strong x-text="t('parkingKey')"></strong><span x-text="parkingBayNote || t('dash')"></span></div>
+                <div style="margin-top:6px;"><strong x-text="t('washCompletedKey')"></strong><span x-text="washCompletedAt || t('dash')"></span></div>
+            </div>
+            <button type="button" class="btn btn-outline" style="margin-top:16px;" @click="goDashboard()" x-text="t('backDashboard')"></button>
         </div>
     </template>
 
@@ -290,39 +380,328 @@
                 ownerPhone: '011-222 3344',
                 remark: '',
                 status: 'washing'
+            },
+            J004: {
+                id: 'J004',
+                plate: 'P 7788 QRS',
+                model: 'Toyota Camry',
+                color: 'Silver',
+                type: 'Sedan',
+                ownerName: 'Chen Wei',
+                ownerPhone: '019-888 7766',
+                remark: '洗车已完成，待销售提车确认',
+                status: 'ready',
+                parkingBayNote: 'A12',
+                washCompletedAt: '2026-05-11 14:35:00'
+            }
+        };
+
+        const DETAIL_I18N = {
+            zh: {
+                pageTitle: 'WASHFLOW — 任务详情',
+                detailTitle: '任务详情',
+                jobIdLabel: '工单 ID：',
+                remarkPrefix: '备注：',
+                dash: '—',
+                pending: '待处理',
+                inspection: '检查中',
+                washing: '清洗中',
+                ready: '可提车',
+                paid: '已付款',
+                completed: '已完成',
+                exception: '异常',
+                prewashTitle: '洗前阶段',
+                prewashBody: '仅工人（worker）可在此工单执行车辆检查与开始清洗。当前角色为只读。',
+                prewashHintPending: '状态：待处理 — 等待工人接单并完成检查清单。',
+                prewashHintInspection: '状态：检查中 — 工人正在记录车况。',
+                inspectTitle: '车辆检查',
+                inspectSub: '完成下列项目并确认无异常后，方可开始清洗。',
+                inspectScratches: '划痕与凹痕',
+                inspectGrease: '油污程度',
+                inspectInterior: '内饰情况',
+                inspectBelongings: '个人物品 / 贵重物品',
+                inspectPhotos: '车况照片（至少 1 张）',
+                uploadPhotosLabel: '上传照片',
+                selectPlaceholder: '— 请选择 —',
+                scratchOptNone: '无明显损伤 / 轻微（可清洗）',
+                scratchOptDocumented: '已记录，客户已知悉（可清洗）',
+                scratchOptConfirm: '异常 — 需经理与客户确认',
+                greaseOptLight: '轻',
+                greaseOptMedium: '中',
+                greaseOptHeavy: '重（不可直接开洗，需经理与客户确认）',
+                interiorOptGood: '良好',
+                interiorOptFair: '一般',
+                interiorOptPoor: '较差 / 有损坏风险（需经理与客户确认）',
+                belongingsOptNone: '未见明显物品',
+                belongingsOptNotified: '有物品，已提醒客户收好',
+                belongingsOptIssue: '有贵重物品或争议（需经理与客户确认）',
+                badgeNeedsConfirm: '需确认',
+                badgeHeavy: '重点污渍',
+                inspectPhotoDemoHint: '当前为前端演示：图片仅在浏览器内存中预览；正式版将把图片以二进制（Blob / ArrayBuffer）提交后端并写入数据库。',
+                inspectPhotoEmptyHint: '尚未选择照片。完成检查并上传至少 1 张后方可开始清洗。',
+                inspectPhotoDemoNote: '演示：保留浏览器 File 对象；上线可读 ArrayBuffer 后随工单一并 POST 存入 DB。',
+                removePhoto: '移除',
+                overallAbnormalLabel: '整体标记异常（禁止清洗，需经理介入）',
+                notesLabel: '备注',
+                notePlaceholder: '检查完成后可追加备注…',
+                addNote: '添加备注',
+                noWorkerNotes: '暂无工人备注。',
+                alertCannotWashTitle: '无法开始清洗',
+                alertCannotWashBody: '存在异常或需确认项：须由经理联系客户确认情况后，方可继续。请勿擅自开洗。',
+                hintFinishInspectionPhotos: '请完成所有检查项并上传至少 1 张车况照片后，「开始清洗」将可用。',
+                hintInspectionOk: '检查已完成且无异常，可以开始清洗。',
+                requestManagerBtn: '请求经理确认',
+                managerRequestedHint: '已向经理发送确认请求（演示状态，无真实发送）。',
+                startWashBtn: '开始清洗',
+                washingTitle: '清洗进行中…',
+                parkingLabel: '停车格 / 车辆停放位置',
+                parkingPlaceholder: '例如：A-12、B区 3号',
+                parkingHint: '清洗完成后请填写车辆停放位置，便于客户取车。',
+                completeWashBtn: '完成洗车任务',
+                completeWashNeedParking: '请填写停车格或车辆停放位置后再完成洗车任务。',
+                nonWorkerWashingHint: '工人正在清洗车辆。',
+                readyTitle: '🟢 车辆已准备好',
+                readySubtitle: '洗车已完成，停车位置已由工人登记。',
+                handoverMeta: '工人交接摘要',
+                parkingKey: '停车格：',
+                washCompletedKey: '洗车完成时间：',
+                pickupTitle: '提车确认',
+                pickupBody: '车辆已清洗完成并可提车。本人确认已将车辆交还客户（演示流程不含收款步骤）。',
+                pickupCheckbox: '确认已提车且交接无误',
+                pickupInvoiceThanks: '谢谢您选择了我们的服务，invoice 会发到您公司的邮箱。请跟财务跟进，谢谢。',
+                pickupConfirmBtn: '✅ 确认提车',
+                workerWaitSaleHint: '洗车任务已完成。请等待销售确认提车。',
+                paidLegacyHint: '此工单处于旧状态「已付款」。演示已取消付款步骤，请使用下方提车确认。',
+                completedTitle: '任务已完成',
+                backDashboard: '返回仪表盘',
+                workerNameNoteAuthor: '工人 · 阿明',
+                washBlocked_selects: '请完成全部检查项（划痕、油污、内饰、物品）。',
+                washBlocked_photos: '请至少上传 1 张车况照片。',
+                washBlocked_abnormal: '存在异常项：须经理与客户确认后才能清洗。'
+            },
+            en: {
+                pageTitle: 'WASHFLOW — Job detail',
+                detailTitle: 'Job detail',
+                jobIdLabel: 'Job ID: ',
+                remarkPrefix: 'Note: ',
+                dash: '—',
+                pending: 'Pending',
+                inspection: 'Inspection',
+                washing: 'Washing',
+                ready: 'Ready for pickup',
+                paid: 'Paid',
+                completed: 'Completed',
+                exception: 'Exception',
+                prewashTitle: 'Pre-wash',
+                prewashBody: 'Only workers can run inspection and start washing on this job. Your role is read-only.',
+                prewashHintPending: 'Pending — waiting for worker to accept and finish the checklist.',
+                prewashHintInspection: 'Inspection — worker is recording vehicle condition.',
+                inspectTitle: 'Vehicle inspection',
+                inspectSub: 'Complete all items and confirm no blockers before starting the wash.',
+                inspectScratches: 'Scratches / dents',
+                inspectGrease: 'Grease / oil level',
+                inspectInterior: 'Interior condition',
+                inspectBelongings: 'Personal / valuables',
+                inspectPhotos: 'Condition photos (at least 1)',
+                uploadPhotosLabel: 'Upload photos',
+                selectPlaceholder: '— Select —',
+                scratchOptNone: 'None or minor (OK to wash)',
+                scratchOptDocumented: 'Documented, customer informed (OK to wash)',
+                scratchOptConfirm: 'Issue — needs manager & customer confirmation',
+                greaseOptLight: 'Light',
+                greaseOptMedium: 'Medium',
+                greaseOptHeavy: 'Heavy — do not start; needs manager & customer confirmation',
+                interiorOptGood: 'Good',
+                interiorOptFair: 'Fair',
+                interiorOptPoor: 'Poor / damage risk — needs manager & customer confirmation',
+                belongingsOptNone: 'No obvious items seen',
+                belongingsOptNotified: 'Items present — customer reminded to secure',
+                belongingsOptIssue: 'Valuable/disputed items — needs manager & customer confirmation',
+                badgeNeedsConfirm: 'Confirm',
+                badgeHeavy: 'Heavy soil',
+                inspectPhotoDemoHint: 'Frontend demo only: images preview in memory. Production will POST binary (Blob/ArrayBuffer) to the backend.',
+                inspectPhotoEmptyHint: 'No photos yet. Add at least one photo before starting the wash.',
+                inspectPhotoDemoNote: 'Demo: keeps File in-browser; production can read ArrayBuffer and POST with the job.',
+                removePhoto: 'Remove',
+                overallAbnormalLabel: 'Mark overall abnormal (no wash; manager required)',
+                notesLabel: 'Notes',
+                notePlaceholder: 'Add notes after inspection…',
+                addNote: 'Add note',
+                noWorkerNotes: 'No worker notes yet.',
+                alertCannotWashTitle: 'Cannot start washing',
+                alertCannotWashBody: 'Exceptions need manager & customer confirmation. Do not start without approval.',
+                hintFinishInspectionPhotos: 'Finish every checklist item and upload at least one photo to enable Start washing.',
+                hintInspectionOk: 'Inspection complete with no blockers. You may start washing.',
+                requestManagerBtn: 'Request manager confirmation',
+                managerRequestedHint: 'Confirmation requested (demo — nothing is actually sent).',
+                startWashBtn: 'Start washing',
+                washingTitle: 'Washing in progress…',
+                parkingLabel: 'Parking bay',
+                parkingPlaceholder: 'e.g. Bay A-12',
+                parkingHint: 'After washing, record where the vehicle is parked for pickup.',
+                completeWashBtn: 'Complete wash task',
+                completeWashNeedParking: 'Enter parking bay / location before completing the wash.',
+                nonWorkerWashingHint: 'A worker is washing the vehicle.',
+                readyTitle: '🟢 Vehicle ready',
+                readySubtitle: 'Wash finished; parking info recorded by worker.',
+                handoverMeta: 'Worker handover',
+                parkingKey: 'Parking: ',
+                washCompletedKey: 'Wash completed at: ',
+                pickupTitle: 'Pickup confirmation',
+                pickupBody: 'Vehicle is washed and ready. I confirm handover to the customer (demo skips payment).',
+                pickupCheckbox: 'Confirm pickup and handover',
+                pickupInvoiceThanks: 'Thank you for choosing our service. The invoice will be sent to your company email. Please follow up with finance—thank you.',
+                pickupConfirmBtn: '✅ Confirm pickup',
+                workerWaitSaleHint: 'Wash done. Waiting for sales to confirm pickup.',
+                paidLegacyHint: 'Legacy status “Paid”. Payment step removed in this demo — confirm pickup below.',
+                completedTitle: 'Job completed',
+                backDashboard: 'Back to dashboard',
+                workerNameNoteAuthor: 'Worker · Ming',
+                washBlocked_selects: 'Finish all checklist items (scratches, grease, interior, belongings).',
+                washBlocked_photos: 'Upload at least one condition photo.',
+                washBlocked_abnormal: 'Exceptions must be cleared by manager & customer before washing.'
+            },
+            ms: {
+                pageTitle: 'WASHFLOW — Butiran kerja',
+                detailTitle: 'Butiran kerja',
+                jobIdLabel: 'ID kerja: ',
+                remarkPrefix: 'Nota: ',
+                dash: '—',
+                pending: 'Menunggu',
+                inspection: 'Pemeriksaan',
+                washing: 'Sedang cuci',
+                ready: 'Sedia diambil',
+                paid: 'Dibayar',
+                completed: 'Selesai',
+                exception: 'Kecualian',
+                prewashTitle: 'Pra-cuci',
+                prewashBody: 'Hanya pekerja boleh semak dan mula cuci. Peranan anda baca sahaja.',
+                prewashHintPending: 'Menunggu pekerja terima dan lengkapkan senarai.',
+                prewashHintInspection: 'Pemeriksaan — pekerja merekod keadaan kenderaan.',
+                inspectTitle: 'Pemeriksaan kenderaan',
+                inspectSub: 'Lengkapkan semua item sebelum mula cuci.',
+                inspectScratches: 'Calarkan / kemik',
+                inspectGrease: 'Tahap gris / minyak',
+                inspectInterior: 'Dalaman',
+                inspectBelongings: 'Barang peribadi / berharga',
+                inspectPhotos: 'Foto keadaan (min 1)',
+                uploadPhotosLabel: 'Muat naik foto',
+                selectPlaceholder: '— Pilih —',
+                scratchOptNone: 'Tiada / ringan (OK cuci)',
+                scratchOptDocumented: 'Direkod, pelanggan dimaklumkan (OK cuci)',
+                scratchOptConfirm: 'Isu — perlu pengurus & pelanggan',
+                greaseOptLight: 'Ringan',
+                greaseOptMedium: 'Sederhana',
+                greaseOptHeavy: 'Berat — jangan mula; perlu pengurus & pelanggan',
+                interiorOptGood: 'Baik',
+                interiorOptFair: 'Sederhana',
+                interiorOptPoor: 'Lemah / risiko rosak — perlu pengurus & pelanggan',
+                belongingsOptNone: 'Tiada barang jelas',
+                belongingsOptNotified: 'Ada barang — pelanggan diingatkan',
+                belongingsOptIssue: 'Barang berharga / pertikaian — perlu pengurus & pelanggan',
+                badgeNeedsConfirm: 'Sahkan',
+                badgeHeavy: 'Kotor teruk',
+                inspectPhotoDemoHint: 'Demo: pratonton dalam memori. Produksi akan hantar binari ke pelayan.',
+                inspectPhotoEmptyHint: 'Tiada foto. Muat naik sekurang-kurangnya satu sebelum mula.',
+                inspectPhotoDemoNote: 'Demo: simpan File dalam pelayar; produksi boleh ArrayBuffer + POST.',
+                removePhoto: 'Buang',
+                overallAbnormalLabel: 'Tanda keseluruhan tidak normal (tiada cuci; perlu pengurus)',
+                notesLabel: 'Nota',
+                notePlaceholder: 'Tambah nota selepas pemeriksaan…',
+                addNote: 'Tambah nota',
+                noWorkerNotes: 'Tiada nota pekerja.',
+                alertCannotWashTitle: 'Tidak boleh mula cuci',
+                alertCannotWashBody: 'Isu perlu pengurus & pelanggan. Jangan mula tanpa kelulusan.',
+                hintFinishInspectionPhotos: 'Lengkapkan semua item dan muat naik sekurang-kurangnya satu foto.',
+                hintInspectionOk: 'Pemeriksaan siap tanpa halangan. Boleh mula cuci.',
+                requestManagerBtn: 'Minta pengurus sahkan',
+                managerRequestedHint: 'Permintaan dihantar (demo — tiada hantaran sebenar).',
+                startWashBtn: 'Mula cuci',
+                washingTitle: 'Sedang cuci…',
+                parkingLabel: 'Petak letak kereta',
+                parkingPlaceholder: 'cth. A-12',
+                parkingHint: 'Selepas cuci, rekod lokasi untuk ambil kereta.',
+                completeWashBtn: 'Selesai tugas cuci',
+                completeWashNeedParking: 'Isi petak / lokasi sebelum selesai.',
+                nonWorkerWashingHint: 'Pekerja sedang mencuci kenderaan.',
+                readyTitle: '🟢 Kenderaan sedia',
+                readySubtitle: 'Cuci selesai; tempat letak direkod oleh pekerja.',
+                handoverMeta: 'Ringkasan serah pekerja',
+                parkingKey: 'Letak kereta: ',
+                washCompletedKey: 'Masa selesai cuci: ',
+                pickupTitle: 'Pengesahan ambil',
+                pickupBody: 'Kenderaan siap. Sahkan serah kepada pelanggan (demo tiada bayaran).',
+                pickupCheckbox: 'Sahkan ambil & serahan',
+                pickupInvoiceThanks: 'Terima kasih memilih perkhidmatan kami. Invois akan dihantar ke e-mel syarikat anda. Sila susuli dengan kewangan—terima kasih.',
+                pickupConfirmBtn: '✅ Sahkan ambil',
+                workerWaitSaleHint: 'Cuci selesai. Tunggu jualan sahkan.',
+                paidLegacyHint: 'Status lama “Dibayar”. Demo tiada bayaran — sahkan ambil di bawah.',
+                completedTitle: 'Kerja selesai',
+                backDashboard: 'Kembali ke papan pemuka',
+                workerNameNoteAuthor: 'Pekerja · Amin',
+                washBlocked_selects: 'Lengkapkan semua item senarai.',
+                washBlocked_photos: 'Muat naik sekurang-kurangnya satu foto.',
+                washBlocked_abnormal: 'Isu mesti dibendung pengurus & pelanggan dahulu.'
             }
         };
 
         function detailData() {
             return {
+                lang: localStorage.getItem('lang') || 'zh',
                 role: new URLSearchParams(location.search).get('role') || 'guest',
                 status: 'inspection',
                 job: { ...MOCK_JOB_MAP.J001 },
-                workerDisplayName: 'Worker · 阿明',
+                i18n: DETAIL_I18N,
 
                 inspection: {
                     scratches: '',
                     grease: '',
                     interior: '',
                     belongings: '',
-                    photoAck: false,
                     overallAbnormal: false
                 },
+
+                inspectionPhotos: [],
 
                 workerNotes: [],
                 noteDraft: '',
                 managerConfirmRequested: false,
 
+                parkingBayNote: '',
+                washCompletedAt: '',
+
                 ackChecked: false,
 
-                statusNames: {
-                    pending: '待处理',
-                    inspection: '检查中',
-                    washing: '清洗中',
-                    ready: '可提车',
-                    paid: '已付款',
-                    completed: '已完成',
-                    exception: '异常'
+                t(key) {
+                    return this.i18n[this.lang]?.[key] || key;
+                },
+
+                localeForDates() {
+                    if (this.lang === 'en') return 'en-US';
+                    if (this.lang === 'ms') return 'ms-MY';
+                    return 'zh-CN';
+                },
+
+                washSummaryVisible() {
+                    return !!(String(this.parkingBayNote || '').trim() || String(this.washCompletedAt || '').trim());
+                },
+
+                canCompleteWashTask() {
+                    return this.role === 'worker' && String(this.parkingBayNote || '').trim().length > 0;
+                },
+
+                completeWashBlockedReason() {
+                    if (this.role !== 'worker') return '';
+                    if (!String(this.parkingBayNote || '').trim()) return this.t('completeWashNeedParking');
+                    return '';
+                },
+
+                completeWashTask() {
+                    if (!this.canCompleteWashTask()) return;
+                    const now = new Date();
+                    this.washCompletedAt = now.toLocaleString(this.localeForDates(), { hour12: false });
+                    this.parkingBayNote = String(this.parkingBayNote || '').trim();
+                    this.status = 'ready';
                 },
 
                 isPreWashPhase() {
@@ -340,7 +719,52 @@
 
                 inspectionComplete() {
                     const i = this.inspection;
-                    return !!(i.scratches && i.grease && i.interior && i.belongings && i.photoAck);
+                    const hasPhotos = Array.isArray(this.inspectionPhotos) && this.inspectionPhotos.length >= 1;
+                    return !!(i.scratches && i.grease && i.interior && i.belongings && hasPhotos);
+                },
+
+                formatFileSize(bytes) {
+                    const n = Number(bytes);
+                    if (!Number.isFinite(n) || n < 0) return this.t('dash');
+                    if (n < 1024) return n + ' B';
+                    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+                    return (n / (1024 * 1024)).toFixed(1) + ' MB';
+                },
+
+                revokeAllInspectionPhotoUrls() {
+                    (this.inspectionPhotos || []).forEach((p) => {
+                        if (p && p.previewUrl) URL.revokeObjectURL(p.previewUrl);
+                    });
+                },
+
+                addInspectionPhotos(event) {
+                    const input = event.target;
+                    const files = Array.from(input.files || []).filter((f) => f.type.startsWith('image/'));
+                    input.value = '';
+                    const uid = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'p-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+                    files.forEach((file) => {
+                        const previewUrl = URL.createObjectURL(file);
+                        this.inspectionPhotos.push({
+                            id: uid(),
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            previewUrl,
+                            file,
+                            demoBinaryNote: this.t('inspectPhotoDemoNote')
+                        });
+                    });
+                },
+
+                removeInspectionPhoto(index) {
+                    const item = this.inspectionPhotos[index];
+                    if (item && item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+                    this.inspectionPhotos.splice(index, 1);
+                },
+
+                resetInspectionPhotos() {
+                    this.revokeAllInspectionPhotoUrls();
+                    this.inspectionPhotos = [];
                 },
 
                 canStartWash() {
@@ -348,8 +772,11 @@
                 },
 
                 washBlockedReason() {
-                    if (!this.inspectionComplete()) return '请完成全部检查项并勾选照片/备注确认。';
-                    if (this.hasInspectionAbnormal()) return '存在异常项：须经理与客户确认后才能清洗。';
+                    const i = this.inspection;
+                    const selectsOk = !!(i.scratches && i.grease && i.interior && i.belongings);
+                    if (!selectsOk) return this.t('washBlocked_selects');
+                    if (!this.inspectionPhotos.length) return this.t('washBlocked_photos');
+                    if (this.hasInspectionAbnormal()) return this.t('washBlocked_abnormal');
                     return '';
                 },
 
@@ -358,9 +785,9 @@
                     if (!text) return;
                     const now = new Date();
                     this.workerNotes.push({
-                        author: this.workerDisplayName,
+                        author: this.t('workerNameNoteAuthor'),
                         text,
-                        time: now.toLocaleString('zh-CN', { hour12: false })
+                        time: now.toLocaleString(this.localeForDates(), { hour12: false })
                     });
                     this.noteDraft = '';
                 },
@@ -374,6 +801,10 @@
                     const base = id && MOCK_JOB_MAP[id] ? MOCK_JOB_MAP[id] : MOCK_JOB_MAP.J001;
                     this.job = { ...base };
                     this.status = base.status;
+                    this.resetInspectionPhotos();
+                    this.parkingBayNote = base.parkingBayNote != null ? String(base.parkingBayNote) : '';
+                    this.washCompletedAt = base.washCompletedAt != null ? String(base.washCompletedAt) : '';
+                    this.ackChecked = false;
                 },
 
                 goDashboard() {

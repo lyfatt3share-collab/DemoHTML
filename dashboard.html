@@ -25,7 +25,7 @@
     <nav style="display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;">
         <a href="job/create.html" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="['guest','sale','admin'].includes(role)">➕ <span x-text="t('create')"></span></a>
         <button class="btn btn-outline" style="width:auto; white-space:nowrap;" @click="showSearch = !showSearch">🔍 <span x-text="t('search')"></span></button>
-        <button class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="role==='admin'"> <span x-text="t('report')"></span></button>
+        <button type="button" class="btn btn-outline" style="width:auto; white-space:nowrap;" x-show="role==='admin'" @click="goReport()"><span x-text="t('report')"></span></button>
     </nav>
 
     <!-- 搜索框 -->
@@ -77,7 +77,7 @@
                 <span class="tag" :class="job.status" x-text="t(job.status)"></span>
             </div>
             <div style="margin-top:12px; font-size:13px; color:var(--text-secondary);">
-                ID: <span x-text="job.id"></span>
+                <span x-text="t('jobIdLabel')"></span><span x-text="job.id"></span>
             </div>
         </div>
     </template>
@@ -199,12 +199,14 @@
                 },
 
                 i18n: {
-                    zh: { dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', pending: '待处理', inspection: '检查中', washing: '清洗中', ready: '可提车', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
-                    en: { dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', pending: 'Pending', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
-                    ms: { dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', pending: 'Menunggu', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+                    zh: { pageTitle: 'WASHFLOW — 仪表盘', dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', jobIdLabel: '工单 ID：', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', pending: '待处理', inspection: '检查中', washing: '清洗中', ready: '可提车', paid: '已付款', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
+                    en: { pageTitle: 'WASHFLOW — Dashboard', dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', jobIdLabel: 'Job ID: ', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', pending: 'Pending', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', paid: 'Paid', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
+                    ms: { pageTitle: 'WASHFLOW — Papan Pemuka', dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', jobIdLabel: 'ID kerja: ', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', pending: 'Menunggu', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', paid: 'Dibayar', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
                 },
 
                 initDashboard() {
+                    document.documentElement.lang = this.lang;
+                    document.title = this.t('pageTitle');
                     window.addEventListener('online', () => this.isOnline = true);
                     window.addEventListener('offline', () => this.isOnline = false);
                 },

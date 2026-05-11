@@ -4,10 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>日交易明细</title>
+    <title>发票台账</title>
 
     <link rel="stylesheet" href="assets/css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+    <style>
+        .header-lang-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .header-lang-wrap .lang-dropdown {
+            bottom: auto;
+            top: calc(100% + 8px);
+            left: auto;
+            right: 0;
+            transform: none;
+        }
+        .header-lang-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+        }
+        .header-lang-btn:hover { background: var(--bg-page); }
+    </style>
 </head>
 
 <body x-data="ledgerData()" x-init="guard(); initLedger()" style="padding-bottom:80px;">
@@ -19,21 +42,63 @@
                 @click="goReport()">
             ←
         </button>
-        <strong>日交易明细</strong>
-        <span class="tag pending">ADMIN</span>
+        <strong x-text="t('ledgerHeading')"></strong>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <div class="header-lang-wrap">
+                <button type="button"
+                        class="header-lang-btn nav-lang-btn"
+                        @click="langOpen = !langOpen"
+                        :aria-expanded="langOpen">
+                    🌐
+                    <svg width="8" height="8" viewBox="0 0 12 12" fill="none" :style="{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
+                        <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div x-show="langOpen"
+                     @click.away="langOpen = false"
+                     x-transition
+                     class="lang-dropdown">
+                    <button type="button" @click="switchLang('zh'); langOpen = false"
+                            class="lang-option"
+                            :class="{ 'active': lang === 'zh' }">
+                        <span class="lang-flag">🇨🇳</span>
+                        <span class="lang-name">中文</span>
+                        <span class="lang-code">ZH</span>
+                    </button>
+                    <button type="button" @click="switchLang('en'); langOpen = false"
+                            class="lang-option"
+                            :class="{ 'active': lang === 'en' }">
+                        <span class="lang-flag">🇬🇧</span>
+                        <span class="lang-name">English</span>
+                        <span class="lang-code">EN</span>
+                    </button>
+                    <button type="button" @click="switchLang('ms'); langOpen = false"
+                            class="lang-option"
+                            :class="{ 'active': lang === 'ms' }">
+                        <span class="lang-flag">🇲🇾</span>
+                        <span class="lang-name">Bahasa Melayu</span>
+                        <span class="lang-code">MS</span>
+                    </button>
+                </div>
+            </div>
+            <span class="tag pending" x-text="t('roleAdminBadge')"></span>
+        </div>
     </div>
 
     <!-- 日期选择 -->
     <div class="card">
-        <label class="form-label">选择日期</label>
+        <label class="form-label" x-text="t('selectDateLabel')"></label>
         <input type="date" class="form-input" x-model="selectedDate" @change="loadLedger()" />
     </div>
 
     <!-- Export -->
     <div class="card">
-        <button class="btn btn-outline" @click="exportData()">
-            ⤓ 导出交易明细（CSV / Excel）
+        <button class="btn btn-outline" @click="exportData()" x-text="t('exportButton')">
         </button>
+    </div>
+
+    <div class="card" style="font-size:13px; color:var(--text-secondary); line-height:1.5;">
+        <span x-text="t('zohoBooksSyncNote')"></span>
     </div>
 
     <!-- 交易列表 -->
@@ -45,12 +110,12 @@
             </div>
 
             <div style="margin-top:8px;">
-                金额：RM <strong x-text="tx.amount.toFixed(2)"></strong>
+                <span x-text="t('amountLabel')"></span>RM <strong x-text="tx.amount.toFixed(2)"></strong>
             </div>
 
             <div style="margin-top:4px; font-size:13px; color:var(--text-secondary);">
-                支付方式：<span x-text="tx.method"></span> ·
-                状态：<span x-text="tx.status"></span>
+                <span x-text="t('invoiceNoLabel')"></span><span x-text="tx.invoiceNo ? tx.invoiceNo : t('invoiceNoPending')"></span><span> · </span>
+                <span x-text="t('invoiceStatusLabel')"></span><span x-text="t('invoiceStatus_' + tx.invoiceStatusKey)"></span>
             </div>
         </div>
     </template>
@@ -59,39 +124,104 @@
     <script>
         function ledgerData() {
             return {
+                lang: localStorage.getItem('lang') || 'zh',
+                langOpen: false,
                 role: new URLSearchParams(location.search).get('role'),
 
                 selectedDate: '',
                 transactions: [],
 
-                // ✅ guard：必须第一时间执行
+                i18n: {
+                    zh: {
+                        pageTitle: 'WASHFLOW — 发票台账',
+                        ledgerHeading: '发票台账',
+                        selectDateLabel: '选择日期',
+                        exportButton: '⤓ 导出发票台账（CSV / Excel）',
+                        amountLabel: '金额：',
+                        invoiceNoLabel: '发票编号：',
+                        invoiceNoPending: '—',
+                        invoiceStatusLabel: '状态：',
+                        invoiceStatus_generated: '发票已生成',
+                        invoiceStatus_pending: '尚未生成',
+                        zohoBooksSyncNote: '说明：发票编号将由 Zoho Books 生成，并同步回本系统数据库。',
+                        exportAlert: '导出将由财务处理（发票台账 V1 占位）。',
+                        roleAdminBadge: '管理员',
+                    },
+                    en: {
+                        pageTitle: 'WASHFLOW — Invoice Ledger',
+                        ledgerHeading: 'Invoice Ledger',
+                        selectDateLabel: 'Select date',
+                        exportButton: '⤓ Export invoice ledger (CSV / Excel)',
+                        amountLabel: 'Amount: ',
+                        invoiceNoLabel: 'Invoice No: ',
+                        invoiceNoPending: 'Pending',
+                        invoiceStatusLabel: 'Status: ',
+                        invoiceStatus_generated: 'Invoice generated',
+                        invoiceStatus_pending: 'Not generated yet',
+                        zohoBooksSyncNote: 'Invoice numbers are created in Zoho Books and synced back to this database.',
+                        exportAlert: 'Export will be handled by Finance (invoice ledger V1 placeholder).',
+                        roleAdminBadge: 'Admin',
+                    },
+                    ms: {
+                        pageTitle: 'WASHFLOW — Lejar Invois',
+                        ledgerHeading: 'Lejar Invois',
+                        selectDateLabel: 'Pilih tarikh',
+                        exportButton: '⤓ Eksport lejar invois (CSV / Excel)',
+                        amountLabel: 'Amaun: ',
+                        invoiceNoLabel: 'No. Invois: ',
+                        invoiceNoPending: '—',
+                        invoiceStatusLabel: 'Status: ',
+                        invoiceStatus_generated: 'Invois dijana',
+                        invoiceStatus_pending: 'Belum dijana',
+                        zohoBooksSyncNote: 'Nombor invois akan dijana dalam Zoho Books dan disegerakkan semula ke pangkalan data ini.',
+                        exportAlert: 'Eksport akan dikendalikan oleh Kewangan (placeholder lejar invois V1).',
+                        roleAdminBadge: 'Pentadbir',
+                    },
+                },
+
+                t(key) {
+                    return this.i18n[this.lang]?.[key] || key;
+                },
+
+                setLang(lang) {
+                    this.lang = lang;
+                    localStorage.setItem('lang', lang);
+                },
+
+                switchLang(lang) {
+                    this.setLang(lang);
+                    window.location.reload();
+                },
+
                 guard() {
                     if (this.role !== 'admin') {
-                        window.location.replace('./dashboard.html')
+                        window.location.replace('./dashboard.html');
                     }
                 },
 
                 initLedger() {
-                    this.selectedDate = new Date().toISOString().slice(0, 10)
-                    this.loadLedger()
+                    document.documentElement.lang = this.lang;
+                    document.title = this.t('pageTitle');
+                    this.selectedDate = new Date().toISOString().slice(0, 10);
+                    this.loadLedger();
                 },
 
                 loadLedger() {
                     this.transactions = [
-                        { id: 'TX-10001', time: '10:12', amount: 120.0, method: 'Cash', status: 'Completed' },
-                        { id: 'TX-10002', time: '11:03', amount: 85.5, method: 'Card', status: 'Completed' },
-                        { id: 'TX-10003', time: '14:45', amount: 150.25, method: 'E-Wallet', status: 'Completed' },
-                    ]
+                        { id: 'TX-10001', time: '10:12', amount: 120.0, invoiceNo: 'INV-2025-0142', invoiceStatusKey: 'generated' },
+                        { id: 'TX-10002', time: '11:03', amount: 85.5, invoiceNo: null, invoiceStatusKey: 'pending' },
+                        { id: 'TX-10003', time: '14:45', amount: 150.25, invoiceNo: 'INV-2025-0143', invoiceStatusKey: 'generated' },
+                    ];
                 },
 
                 exportData() {
-                    alert('Export 将由 Finance 处理（V1 占位）')
+                    alert(this.t('exportAlert'));
                 },
 
                 goReport() {
-                    window.location.href = `./report.html?role=${this.role}`
+                    window.location.href = `./report.html?role=${this.role}`;
                 },
-            }
+            };
         }
     </script>
 </body>
