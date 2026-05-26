@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>任务详情</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.6.1/dist/css/tom-select.default.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.6.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
     <style>
         .inspect-row { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
@@ -36,10 +38,16 @@
         <span class="tag" :class="status" x-text="t(status)"></span>
     </div>
 
-    <!-- ✅ 车辆 & 车主信息卡片 -->
+    <!-- ✅ 任务信息卡片 -->
     <div class="card">
+        <!-- 服务日期时间 -->
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+            📅 <span x-text="job.serviceDateTime"></span>
+        </p>
+
         <h2 style="margin-bottom:6px;">
-            🚗 <span x-text="job.plate"></span>
+            🚗 <span x-text="job.vehicleIdentifier"></span>
+            <span style="font-size:12px; font-weight:400; color:var(--text-secondary);" x-text="job.vehicleType === 'chassis' ? '(Chassis)' : ''"></span>
         </h2>
 
         <p style="color:var(--text-secondary); margin-bottom:6px;">
@@ -52,15 +60,31 @@
             <span x-text="t('jobIdLabel')"></span><strong x-text="job.id"></strong>
         </p>
 
+        <!-- Outlet -->
+        <p style="font-size:13px; color:var(--text-secondary); margin-top:6px;">
+            📍 <span x-text="t('outletLabel')"></span><strong x-text="getOutletName(job.outlet)"></strong>
+        </p>
+
+        <!-- Sales Advisor + Phone -->
         <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size:14px;">
-                👤 <span x-text="job.ownerName"></span>
+                💼 <span x-text="t('salesAdvisorLabel')"></span><strong x-text="job.salesAdvisor || t('dash')"></strong>
             </div>
 
             <a :href="'tel:' + job.ownerPhone"
                style="color:var(--primary); font-size:14px; font-weight:500; text-decoration:none;">
                 📞 <span x-text="job.ownerPhone"></span>
             </a>
+        </div>
+
+        <!-- Services -->
+        <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+            <p style="font-size:13px; font-weight:500; margin-bottom:6px;" x-text="t('servicesLabel')"></p>
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <template x-for="code in job.services" :key="code">
+                    <span style="display:inline-block; padding:3px 8px; border-radius:4px; font-size:12px; background:var(--primary-light); color:var(--primary); border:1px solid var(--primary);" x-text="getServiceName(code)"></span>
+                </template>
+            </div>
         </div>
 
         <template x-if="job.remark">
@@ -347,6 +371,30 @@
 
     <!-- 🧠 数据与逻辑 -->
     <script>
+        const OUTLETS = {
+            puchong: 'Puchong',
+            selayang: 'Selayang',
+            ampang: 'Ampang'
+        };
+
+        const SERVICE_MAP = {
+            '1': 'Basic',
+            '2': 'Premium (water wax)',
+            '3': 'Headlight Revive & Protect',
+            '4': 'Engine Revitalize & Shine',
+            '5': 'Remove Glass Watermark',
+            '6': 'Glass All Sides Rainaway',
+            '7': 'Medium Cut Polish & Wax - 1 Layer',
+            '8': 'Perfect Cut Polish & Wax - 3 Layer',
+            '9': 'Reblack Plastic',
+            '10': 'Interior Detail (Dash & Doors)',
+            '11': 'Nanomist Germ Shield',
+            '12': 'Leather Seat Conditioner (Leather)',
+            '13': 'Ceramic 9H',
+            '14': 'Graphene 10H',
+            '15': 'Coating Maintenance'
+        };
+
         const MOCK_JOB_MAP = {
             J001: {
                 id: 'J001',
@@ -354,9 +402,14 @@
                 model: 'Honda City',
                 color: 'White',
                 type: 'Sedan',
-                ownerName: 'Tan Ah Kow',
-                ownerPhone: '012-345 6789',
+                vehicleType: 'registration',
+                vehicleIdentifier: 'B 1234 ABC',
+                ownerPhone: '012-111 2222',
                 remark: '请注意车尾刮痕',
+                outlet: 'puchong',
+                salesAdvisor: 'Ali Bin Ahmad',
+                serviceDateTime: '2026-05-11 09:15:00',
+                services: ['1', '2'],
                 status: 'inspection'
             },
             J002: {
@@ -365,20 +418,30 @@
                 model: 'Perodua Myvi',
                 color: 'Blue',
                 type: 'Hatchback',
-                ownerName: 'Lee Mei Ling',
-                ownerPhone: '016-987 6543',
+                vehicleType: 'registration',
+                vehicleIdentifier: 'W 5678 XYZ',
+                ownerPhone: '016-111 2222',
                 remark: '',
+                outlet: 'selayang',
+                salesAdvisor: 'Raj Kumar',
+                serviceDateTime: '2026-05-11 10:00:00',
+                services: ['1'],
                 status: 'pending'
             },
             J003: {
                 id: 'J003',
-                plate: 'V 9012 DEF',
+                plate: '',
                 model: 'Tesla Model 3',
                 color: 'Black',
                 type: 'Sedan',
-                ownerName: 'Raj Kumar',
-                ownerPhone: '011-222 3344',
+                vehicleType: 'chassis',
+                vehicleIdentifier: '5YJ3E1EA8PF000123',
+                ownerPhone: '011-111 2222',
                 remark: '',
+                outlet: 'ampang',
+                salesAdvisor: 'David Wong',
+                serviceDateTime: '2026-05-11 11:30:00',
+                services: ['8', '13'],
                 status: 'washing'
             },
             J004: {
@@ -387,9 +450,14 @@
                 model: 'Toyota Camry',
                 color: 'Silver',
                 type: 'Sedan',
-                ownerName: 'Chen Wei',
-                ownerPhone: '019-888 7766',
+                vehicleType: 'registration',
+                vehicleIdentifier: 'P 7788 QRS',
+                ownerPhone: '012-555 6666',
                 remark: '洗车已完成，待销售提车确认',
+                outlet: 'puchong',
+                salesAdvisor: 'Tan Wei Ming',
+                serviceDateTime: '2026-05-11 08:45:00',
+                services: ['1', '9', '11'],
                 status: 'ready',
                 parkingBayNote: 'A12',
                 washCompletedAt: '2026-05-11 14:35:00'
@@ -401,6 +469,9 @@
                 pageTitle: 'WASHFLOW — 任务详情',
                 detailTitle: '任务详情',
                 jobIdLabel: '工单 ID：',
+                outletLabel: '分行：',
+                salesAdvisorLabel: '销售顾问：',
+                servicesLabel: '服务项目',
                 remarkPrefix: '备注：',
                 dash: '—',
                 pending: '待处理',
@@ -483,6 +554,9 @@
                 pageTitle: 'WASHFLOW — Job detail',
                 detailTitle: 'Job detail',
                 jobIdLabel: 'Job ID: ',
+                outletLabel: 'Outlet: ',
+                salesAdvisorLabel: 'Sales Advisor: ',
+                servicesLabel: 'Services',
                 remarkPrefix: 'Note: ',
                 dash: '—',
                 pending: 'Pending',
@@ -565,6 +639,9 @@
                 pageTitle: 'WASHFLOW — Butiran kerja',
                 detailTitle: 'Butiran kerja',
                 jobIdLabel: 'ID kerja: ',
+                outletLabel: 'Cawangan: ',
+                salesAdvisorLabel: 'Penasihat Jualan: ',
+                servicesLabel: 'Perkhidmatan',
                 remarkPrefix: 'Nota: ',
                 dash: '—',
                 pending: 'Menunggu',
@@ -674,6 +751,14 @@
 
                 t(key) {
                     return this.i18n[this.lang]?.[key] || key;
+                },
+
+                getOutletName(code) {
+                    return OUTLETS[code] || code || this.t('dash');
+                },
+
+                getServiceName(code) {
+                    return SERVICE_MAP[code] || code;
                 },
 
                 localeForDates() {

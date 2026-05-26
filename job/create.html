@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>创建订单</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.6.1/dist/css/tom-select.default.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.6.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
     <style>
         .header-lang-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
@@ -78,34 +80,51 @@
 
         <div class="form-group">
             <label x-text="t('labelServiceDate')"></label>
-            <input type="date" x-model="serviceDate" class="form-input" required>
+            <input type="text" x-model="serviceDateTime" class="form-input" readonly style="background:var(--bg-page); cursor:default;">
         </div>
-
 
         <div class="form-group">
-            <label x-text="t('labelDealer')"></label>
-            <input type="text"
-                   x-model="dealer"
-                   class="form-input"
-                   :placeholder="t('phDealer')">
+            <label x-text="t('labelOutlet')"></label>
+            <select x-ref="outletSelect" id="outlet-select" required>
+                <option value=""></option>
+                <option value="puchong">Puchong</option>
+                <option value="selayang">Selayang</option>
+                <option value="ampang">Ampang</option>
+            </select>
         </div>
-
 
         <div class="form-group">
-            <label x-text="t('labelPlate')"></label>
-            <input type="text" x-model="plate" class="form-input" :placeholder="t('phPlate')" required style="text-transform:uppercase;">
+            <label x-text="t('labelSalesAdvisor')"></label>
+            <select x-ref="salesAdvisorSelect" id="sales-advisor-select" required>
+                <option value=""></option>
+            </select>
         </div>
 
-        <!-- ✅ 新增：车主姓名 -->
-        <div class="form-group">
-            <label x-text="t('labelOwnerName')"></label>
-            <input type="text" x-model="ownerName" class="form-input" :placeholder="t('phOwnerName')" required>
-        </div>
-
-        <!-- ✅ 新增：联系电话 (type="tel" 弹出数字键盘) -->
+        <!-- 联系电话（根据 Sales Advisor 自动带入） -->
         <div class="form-group">
             <label x-text="t('labelOwnerPhone')"></label>
-            <input type="tel" x-model="ownerPhone" class="form-input" :placeholder="t('phOwnerPhone')" required>
+            <input type="tel" x-model="ownerPhone" class="form-input" readonly style="background:var(--bg-page); cursor:default;">
+        </div>
+
+
+        <div class="form-group">
+            <label x-text="t('labelVehicleType')"></label>
+            <div style="display:flex; gap:16px; margin-bottom:8px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer;">
+                    <input type="radio" name="vehicleType" value="registration" x-model="vehicleType">
+                    <span x-text="t('optRegistration')"></span>
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:14px; cursor:pointer;">
+                    <input type="radio" name="vehicleType" value="chassis" x-model="vehicleType">
+                    <span x-text="t('optChassis')"></span>
+                </label>
+            </div>
+            <input type="text"
+                   x-model="vehicleIdentifier"
+                   class="form-input"
+                   :placeholder="vehicleType === 'chassis' ? t('phChassis') : t('phPlate')"
+                   required
+                   :style="vehicleType === 'registration' ? 'text-transform:uppercase;' : ''">
         </div>
 
         <div class="form-group">
@@ -119,11 +138,21 @@
         <div class="form-group">
             <label x-text="t('labelServices')"></label>
 
-            <label><input type="checkbox" value="wash" x-model="services"> <span x-text="t('svcWash')"></span></label>
-            <label><input type="checkbox" value="vacuum" x-model="services"> <span x-text="t('svcVacuum')"></span></label>
-            <label><input type="checkbox" value="wash_vacuum" x-model="services"> <span x-text="t('svcWashVacuum')"></span></label>
-            <label><input type="checkbox" value="wax" x-model="services"> <span x-text="t('svcWax')"></span></label>
-            <label><input type="checkbox" value="polish" x-model="services"> <span x-text="t('svcPolish')"></span></label>
+            <label><input type="checkbox" value="1" x-model="services"> 1 - Basic</label>
+            <label><input type="checkbox" value="2" x-model="services"> 2 - Premium (water wax)</label>
+            <label><input type="checkbox" value="3" x-model="services"> 3 - Headlight Revive &amp; Protect</label>
+            <label><input type="checkbox" value="4" x-model="services"> 4 - Engine Revitalize &amp; Shine</label>
+            <label><input type="checkbox" value="5" x-model="services"> 5 - Remove Glass Watermark</label>
+            <label><input type="checkbox" value="6" x-model="services"> 6 - Glass All Sides Rainaway</label>
+            <label><input type="checkbox" value="7" x-model="services"> 7 - Medium Cut Polish &amp; Wax - 1 Layer</label>
+            <label><input type="checkbox" value="8" x-model="services"> 8 - Perfect Cut Polish &amp; Wax - 3 Layer</label>
+            <label><input type="checkbox" value="9" x-model="services"> 9 - Reblack Plastic</label>
+            <label><input type="checkbox" value="10" x-model="services"> 10 - Interior Detail (Dash &amp; Doors)</label>
+            <label><input type="checkbox" value="11" x-model="services"> 11 - Nanomist Germ Shield</label>
+            <label><input type="checkbox" value="12" x-model="services"> 12 - Leather Seat Conditioner (Leather)</label>
+            <label><input type="checkbox" value="13" x-model="services"> 13 - Ceramic 9H</label>
+            <label><input type="checkbox" value="14" x-model="services"> 14 - Graphene 10H</label>
+            <label><input type="checkbox" value="15" x-model="services"> 15 - Coating Maintenance</label>
         </div>
 
         <div class="form-group">
@@ -142,6 +171,29 @@
                 langOpen: false,
                 role: new URLSearchParams(location.search).get('role') || 'guest',
 
+                // Sales advisors per outlet with phone (mock — production: fetched from backend)
+                salesAdvisorsByOutlet: {
+                    puchong: [
+                        { name: 'Ali Bin Ahmad', phone: '012-111 2222' },
+                        { name: 'Siti Nurhaliza', phone: '012-333 4444' },
+                        { name: 'Tan Wei Ming', phone: '012-555 6666' }
+                    ],
+                    selayang: [
+                        { name: 'Raj Kumar', phone: '016-111 2222' },
+                        { name: 'Lim Ah Huat', phone: '016-333 4444' },
+                        { name: 'Nurul Izzah', phone: '016-555 6666' }
+                    ],
+                    ampang: [
+                        { name: 'David Wong', phone: '011-111 2222' },
+                        { name: 'Aisha Binti Yusof', phone: '011-333 4444' },
+                        { name: 'Muthu Rajan', phone: '011-555 6666' }
+                    ]
+                },
+
+                outlet: '',
+                salesAdvisor: '',
+                vehicleType: 'registration',
+                vehicleIdentifier: '',
                 plate: '',
                 ownerName: '',
                 ownerPhone: '',
@@ -149,8 +201,10 @@
                 model: '',
                 color: '',
 
-                serviceDate: '',
-                dealer: '',
+                serviceDateTime: '',
+
+                tomOutlet: null,
+                tomSalesAdvisor: null,
 
                 services: [],
 
@@ -161,24 +215,26 @@
                     zh: {
                         pageTitle: 'WASHFLOW — 创建订单',
                         createHeading: '创建洗车任务',
-                        labelServiceDate: '服务日期 *',
-                        labelDealer: 'Car Dealer（B2B，可选）',
-                        phDealer: '例如：Toyota Cheras',
+                        labelOutlet: '分行 *',
+                        phOutlet: '选择分行...',
+                        labelServiceDate: '服务日期时间',
+                        labelSalesAdvisor: '销售顾问 *',
+                        phSalesAdvisor: '选择销售顾问...',
+                        labelVehicleType: '车辆类型',
+                        optRegistration: 'Registration Number',
+                        optChassis: 'New Car - Chassis Number',
+                        phChassis: '例: MHKA6GJ2MRJ000123',
                         labelPlate: '车牌号码 *',
                         phPlate: '例: B 1234 ABC',
                         labelOwnerName: '车主姓名 *',
                         phOwnerName: '例: Tan Ah Kow',
-                        labelOwnerPhone: '联系电话 *',
+                        labelOwnerPhone: '顾问联系电话',
                         phOwnerPhone: '例: 012-345 6789',
                         labelModelColor: '车型 & 颜色',
                         phModel: '车型',
                         phColor: '颜色',
                         labelServices: '服务项目 *',
-                        svcWash: '洗车',
-                        svcVacuum: '吸尘',
-                        svcWashVacuum: '洗车 + 吸尘',
-                        svcWax: '打蜡',
-                        svcPolish: '抛光 / 镀膜',
+
                         labelRemark: '备注',
                         phRemark: '客户特殊要求...',
                         btnSubmit: '提交订单',
@@ -189,24 +245,26 @@
                     en: {
                         pageTitle: 'WASHFLOW — Create Job',
                         createHeading: 'Create wash job',
-                        labelServiceDate: 'Service date *',
-                        labelDealer: 'Car dealer (B2B, optional)',
-                        phDealer: 'e.g. Toyota Cheras',
+                        labelOutlet: 'Outlet *',
+                        phOutlet: 'Select outlet...',
+                        labelServiceDate: 'Service date & time',
+                        labelSalesAdvisor: 'Sales Advisor *',
+                        phSalesAdvisor: 'Select sales advisor...',
+                        labelVehicleType: 'Vehicle type',
+                        optRegistration: 'Registration Number',
+                        optChassis: 'New Car - Chassis Number',
+                        phChassis: 'e.g. MHKA6GJ2MRJ000123',
                         labelPlate: 'Plate number *',
                         phPlate: 'e.g. B 1234 ABC',
                         labelOwnerName: 'Owner name *',
                         phOwnerName: 'e.g. Tan Ah Kow',
-                        labelOwnerPhone: 'Contact phone *',
+                        labelOwnerPhone: 'Advisor contact',
                         phOwnerPhone: 'e.g. 012-345 6789',
                         labelModelColor: 'Model & colour',
                         phModel: 'Model',
                         phColor: 'Colour',
                         labelServices: 'Services *',
-                        svcWash: 'Wash',
-                        svcVacuum: 'Vacuum',
-                        svcWashVacuum: 'Wash + vacuum',
-                        svcWax: 'Wax',
-                        svcPolish: 'Polish / coating',
+
                         labelRemark: 'Notes',
                         phRemark: 'Special requests...',
                         btnSubmit: 'Submit',
@@ -217,24 +275,26 @@
                     ms: {
                         pageTitle: 'WASHFLOW — Cipta Tempahan',
                         createHeading: 'Cipta kerja cuci',
-                        labelServiceDate: 'Tarikh perkhidmatan *',
-                        labelDealer: 'Penjual kereta (B2B, pilihan)',
-                        phDealer: 'cth. Toyota Cheras',
+                        labelOutlet: 'Cawangan *',
+                        phOutlet: 'Pilih cawangan...',
+                        labelServiceDate: 'Tarikh & masa perkhidmatan',
+                        labelSalesAdvisor: 'Penasihat Jualan *',
+                        phSalesAdvisor: 'Pilih penasihat jualan...',
+                        labelVehicleType: 'Jenis kenderaan',
+                        optRegistration: 'Registration Number',
+                        optChassis: 'New Car - Chassis Number',
+                        phChassis: 'cth. MHKA6GJ2MRJ000123',
                         labelPlate: 'Nombor plat *',
                         phPlate: 'cth. B 1234 ABC',
                         labelOwnerName: 'Nama pemilik *',
                         phOwnerName: 'cth. Tan Ah Kow',
-                        labelOwnerPhone: 'Telefon hubungan *',
+                        labelOwnerPhone: 'Telefon penasihat',
                         phOwnerPhone: 'cth. 012-345 6789',
                         labelModelColor: 'Model & warna',
                         phModel: 'Model',
                         phColor: 'Warna',
                         labelServices: 'Perkhidmatan *',
-                        svcWash: 'Cuci',
-                        svcVacuum: 'Vakum',
-                        svcWashVacuum: 'Cuci + vakum',
-                        svcWax: 'Lilin',
-                        svcPolish: 'Polit / salutan',
+
                         labelRemark: 'Catatan',
                         phRemark: 'Permintaan khas...',
                         btnSubmit: 'Hantar',
@@ -261,6 +321,44 @@
                 initCreate() {
                     document.documentElement.lang = this.lang;
                     document.title = this.t('pageTitle');
+
+                    // Set current date & time (readonly) — TODO: replace with GET /api/server-time
+                    const now = new Date();
+                    this.serviceDateTime = now.toLocaleString(this.lang === 'en' ? 'en-MY' : this.lang === 'ms' ? 'ms-MY' : 'zh-CN', { hour12: false });
+
+                    // Tom Select: Outlet
+                    this.tomOutlet = new TomSelect(this.$refs.outletSelect, {
+                        placeholder: this.t('phOutlet'),
+                        allowEmptyOption: true
+                    });
+                    this.tomOutlet.on('change', (val) => {
+                        this.outlet = val;
+                        this.updateSalesAdvisorOptions(val);
+                    });
+
+                    // Tom Select: Sales Advisor
+                    this.tomSalesAdvisor = new TomSelect(this.$refs.salesAdvisorSelect, {
+                        placeholder: this.t('phSalesAdvisor'),
+                        allowEmptyOption: true
+                    });
+                    this.tomSalesAdvisor.on('change', (val) => {
+                        this.salesAdvisor = val;
+                        // Auto-fill phone from advisor data
+                        const advisors = this.salesAdvisorsByOutlet[this.outlet] || [];
+                        const found = advisors.find(a => a.name === val);
+                        this.ownerPhone = found ? found.phone : '';
+                    });
+                },
+
+                updateSalesAdvisorOptions(outlet) {
+                    this.tomSalesAdvisor.clear();
+                    this.tomSalesAdvisor.clearOptions();
+                    const advisors = this.salesAdvisorsByOutlet[outlet] || [];
+                    advisors.forEach(a => {
+                        this.tomSalesAdvisor.addOption({ value: a.name, text: a.name });
+                    });
+                    this.salesAdvisor = '';
+                    this.ownerPhone = '';
                 },
 
                 goDashboard() {
@@ -276,15 +374,18 @@
                     this.loading = true;
 
                     const payload = {
-                        plate: this.plate,
+                        outlet: this.outlet,
+                        salesAdvisor: this.salesAdvisor,
+                        serviceDateTime: this.serviceDateTime,
+                        vehicleType: this.vehicleType,
+                        vehicleIdentifier: this.vehicleIdentifier,
+                        plate: this.vehicleType === 'registration' ? this.vehicleIdentifier : '',
+                        chassisNumber: this.vehicleType === 'chassis' ? this.vehicleIdentifier : '',
                         ownerName: this.ownerName,
                         ownerPhone: this.ownerPhone,
 
                         model: this.model,
                         color: this.color,
-
-                        serviceDate: this.serviceDate,
-                        dealer: this.dealer,
 
                         services: this.services,
                         remark: this.remark,
