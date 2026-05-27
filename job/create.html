@@ -128,10 +128,21 @@
         </div>
 
         <div class="form-group">
-            <label x-text="t('labelModelColor')"></label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-                <input type="text" x-model="model" class="form-input" :placeholder="t('phModel')" required>
-                <input type="text" x-model="color" class="form-input" :placeholder="t('phColor')" required>
+            <label x-text="t('labelModel')"></label>
+            <input type="text" x-model="model" class="form-input" :placeholder="t('phModel')" required>
+        </div>
+
+        <div class="form-group">
+            <label x-text="t('labelPhotos')"></label>
+            <input type="file" accept="image/*" multiple @change="addPhotos($event)" style="font-size:14px;">
+            <p style="font-size:12px; color:var(--text-secondary); margin-top:6px;" x-text="t('photosHint')"></p>
+            <div x-show="photos.length > 0" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+                <template x-for="(p, idx) in photos" :key="p.id">
+                    <div style="position:relative; width:64px; height:64px;">
+                        <img :src="p.previewUrl" style="width:64px; height:64px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+                        <button type="button" @click="removePhoto(idx)" style="position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; background:var(--status-exception); color:white; border:none; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+                    </div>
+                </template>
             </div>
         </div>
 
@@ -199,7 +210,7 @@
                 ownerPhone: '',
 
                 model: '',
-                color: '',
+                photos: [],
 
                 serviceDateTime: '',
 
@@ -230,9 +241,10 @@
                         phOwnerName: '例: Tan Ah Kow',
                         labelOwnerPhone: '顾问联系电话',
                         phOwnerPhone: '例: 012-345 6789',
-                        labelModelColor: '车型 & 颜色',
-                        phModel: '车型',
-                        phColor: '颜色',
+                        labelModel: '车型',
+                        phModel: '例: Honda City',
+                        labelPhotos: '车辆照片',
+                        photosHint: '可拍照或上传多张车辆照片',
                         labelServices: '服务项目 *',
 
                         labelRemark: '备注',
@@ -260,9 +272,10 @@
                         phOwnerName: 'e.g. Tan Ah Kow',
                         labelOwnerPhone: 'Advisor contact',
                         phOwnerPhone: 'e.g. 012-345 6789',
-                        labelModelColor: 'Model & colour',
-                        phModel: 'Model',
-                        phColor: 'Colour',
+                        labelModel: 'Model',
+                        phModel: 'e.g. Honda City',
+                        labelPhotos: 'Vehicle photos',
+                        photosHint: 'Take or upload vehicle photos',
                         labelServices: 'Services *',
 
                         labelRemark: 'Notes',
@@ -290,9 +303,10 @@
                         phOwnerName: 'cth. Tan Ah Kow',
                         labelOwnerPhone: 'Telefon penasihat',
                         phOwnerPhone: 'cth. 012-345 6789',
-                        labelModelColor: 'Model & warna',
-                        phModel: 'Model',
-                        phColor: 'Warna',
+                        labelModel: 'Model',
+                        phModel: 'cth. Honda City',
+                        labelPhotos: 'Foto kenderaan',
+                        photosHint: 'Ambil atau muat naik foto kenderaan',
                         labelServices: 'Perkhidmatan *',
 
                         labelRemark: 'Catatan',
@@ -365,6 +379,27 @@
                     window.location.href = `../dashboard.html?role=${this.role}`;
                 },
 
+                addPhotos(event) {
+                    const files = Array.from(event.target.files || []).filter(f => f.type.startsWith('image/'));
+                    event.target.value = '';
+                    files.forEach(file => {
+                        this.photos.push({
+                            id: Date.now() + '-' + Math.random().toString(36).slice(2),
+                            name: file.name,
+                            size: file.size,
+                            type: file.type,
+                            previewUrl: URL.createObjectURL(file),
+                            file
+                        });
+                    });
+                },
+
+                removePhoto(idx) {
+                    const item = this.photos[idx];
+                    if (item && item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+                    this.photos.splice(idx, 1);
+                },
+
                 submitForm() {
                     if (this.services.length === 0) {
                         alert(this.t('alertSelectService'));
@@ -381,12 +416,9 @@
                         vehicleIdentifier: this.vehicleIdentifier,
                         plate: this.vehicleType === 'registration' ? this.vehicleIdentifier : '',
                         chassisNumber: this.vehicleType === 'chassis' ? this.vehicleIdentifier : '',
-                        ownerName: this.ownerName,
                         ownerPhone: this.ownerPhone,
-
                         model: this.model,
-                        color: this.color,
-
+                        photos: this.photos.map(p => ({ name: p.name, size: p.size, type: p.type })),
                         services: this.services,
                         remark: this.remark,
                     };

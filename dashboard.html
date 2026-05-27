@@ -62,16 +62,19 @@
         <div class="card" @click="window.location.href=`./job/detail.html?id=${job.id}&role=${role}`">
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <div style="width: 85%;">
-                    <h3 style="font-size:18px; margin-bottom:4px;">🚗 <span x-text="job.plate"></span></h3>
+                    <p style="font-size:11px; color:var(--text-secondary); margin-bottom:4px;">📅 <span x-text="job.serviceDateTime"></span></p>
+                    <h3 style="font-size:18px; margin-bottom:4px;">🚗 <span x-text="job.vehicleIdentifier"></span>
+                        <span style="font-size:11px; font-weight:400; color:var(--text-secondary);" x-show="job.vehicleType === 'chassis'">(Chassis)</span>
+                    </h3>
                     <p style="color:var(--text-secondary); font-size:14px;">
-                        <span x-text="job.model"></span> · <span x-text="job.color"></span>
+                        <span x-text="job.model"></span>
                     </p>
-
-                    <!-- ✅ 新增：车主信息 -->
                     <p style="color:var(--text-secondary); font-size:13px; margin-top:4px; display:flex; align-items:center; gap:4px;">
-                        <span> <span x-text="job.ownerName"></span></span>
+                        📍 <span x-text="job.outlet"></span>
                         <span style="margin:0 4px;">·</span>
-                        <span>📞 <span x-text="job.ownerPhone"></span></span>
+                        💼 <span x-text="job.salesAdvisor"></span>
+                        <span style="margin:0 4px;">·</span>
+                        📞 <span x-text="job.ownerPhone"></span>
                     </p>
                 </div>
                 <span class="tag" :class="job.status" x-text="t(job.status)"></span>
@@ -155,13 +158,12 @@
                 searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '[]'),
                 langOpen: false,
 
-                // ✅ 数据已更新：加入 ownerName 和 ownerPhone
+                // ✅ 数据已对齐 detail.html 结构
                 jobs: [
-                    { id: 'J001', plate: 'B 1234 ABC', model: 'Honda City', color: 'White', ownerName: 'Tan Ah Kow', ownerPhone: '012-345 6789', status: 'inspection' },
-                    { id: 'J002', plate: 'W 5678 XYZ', model: 'Perodua Myvi', color: 'Blue', ownerName: 'Lee Mei Ling', ownerPhone: '016-987 6543', status: 'pending' },
-                    { id: 'J003', plate: 'V 9012 DEF', model: 'Tesla Model 3', color: 'Black', ownerName: 'Raj Kumar', ownerPhone: '011-222 3344', status: 'washing' },
-                    /* 演示：工人已洗完并停入停车格，等待销售确认提车 */
-                    { id: 'J004', plate: 'P 7788 QRS', model: 'Toyota Camry', color: 'Silver', ownerName: 'Chen Wei', ownerPhone: '019-888 7766', status: 'ready' }
+                    { id: 'J001', vehicleType: 'registration', vehicleIdentifier: 'B 1234 ABC', model: 'Honda City', outlet: 'Puchong', salesAdvisor: 'Ali Bin Ahmad', ownerPhone: '012-111 2222', serviceDateTime: '2026-05-11 09:15', status: 'inspection' },
+                    { id: 'J002', vehicleType: 'registration', vehicleIdentifier: 'W 5678 XYZ', model: 'Perodua Myvi', outlet: 'Selayang', salesAdvisor: 'Raj Kumar', ownerPhone: '016-111 2222', serviceDateTime: '2026-05-11 10:00', status: 'pending' },
+                    { id: 'J003', vehicleType: 'chassis', vehicleIdentifier: '5YJ3E1EA8PF000123', model: 'Tesla Model 3', outlet: 'Ampang', salesAdvisor: 'David Wong', ownerPhone: '011-111 2222', serviceDateTime: '2026-05-11 11:30', status: 'washing' },
+                    { id: 'J004', vehicleType: 'registration', vehicleIdentifier: 'P 7788 QRS', model: 'Toyota Camry', outlet: 'Puchong', salesAdvisor: 'Tan Wei Ming', ownerPhone: '012-555 6666', serviceDateTime: '2026-05-11 08:45', status: 'ready' }
                 ],
 
                 get filteredJobs() {
@@ -170,11 +172,11 @@
                     }
                     const query = this.searchQuery.toLowerCase();
                     const results = this.jobs.filter(job =>
-                        job.plate.toLowerCase().includes(query) ||
-                        job.ownerName.toLowerCase().includes(query) ||
+                        job.vehicleIdentifier.toLowerCase().includes(query) ||
+                        job.salesAdvisor.toLowerCase().includes(query) ||
                         job.id.toLowerCase().includes(query) ||
                         job.model.toLowerCase().includes(query) ||
-                        job.color.toLowerCase().includes(query)
+                        job.outlet.toLowerCase().includes(query)
                     );
 
                     // Save to history when user searches
@@ -199,9 +201,9 @@
                 },
 
                 i18n: {
-                    zh: { pageTitle: 'WASHFLOW — 仪表盘', dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/车主/工单号...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', jobIdLabel: '工单 ID：', report: '报表', logout: '退出', plate: '车牌', submit: '提交订单', pending: '待处理', inspection: '检查中', washing: '清洗中', ready: '可提车', paid: '已付款', completed: '已完成', exception: '异常', startWash: '开始清洗', pay: '立即支付', acknowledge: '确认提车', offline: '离线模式 - 恢复网络后同步' },
-                    en: { pageTitle: 'WASHFLOW — Dashboard', dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search by plate/owner/job ID...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', jobIdLabel: 'Job ID: ', report: 'Report', logout: 'Logout', plate: 'Plate', submit: 'Submit', pending: 'Pending', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', paid: 'Paid', completed: 'Completed', exception: 'Exception', startWash: 'Start Wash', pay: 'Pay Now', acknowledge: 'Acknowledge', offline: 'Offline Mode - Sync on reconnect' },
-                    ms: { pageTitle: 'WASHFLOW — Papan Pemuka', dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/pemilik/ID pekerjaan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', jobIdLabel: 'ID kerja: ', report: 'Laporan', logout: 'Log Keluar', plate: 'Plat', submit: 'Hantar', pending: 'Menunggu', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', paid: 'Dibayar', completed: 'Selesai', exception: 'Kecualian', startWash: 'Mula Cuci', pay: 'Bayar', acknowledge: 'Sahkan', offline: 'Mod Luar Talian - Sync bila sambung' }
+                    zh: { pageTitle: 'WASHFLOW — 仪表盘', dashboard: '仪表盘', create: '创建订单', search: '搜索', searchPlaceholder: '🔍 搜索车牌/顾问/工单号/分行...', recentSearches: '最近搜索', clearHistory: '清除历史', results: '条结果', jobIdLabel: '工单 ID：', report: '报表', logout: '退出', pending: '待处理', inspection: '检查中', washing: '清洗中', ready: '可提车', paid: '已付款', completed: '已完成', exception: '异常', offline: '离线模式 - 恢复网络后同步' },
+                    en: { pageTitle: 'WASHFLOW — Dashboard', dashboard: 'Dashboard', create: 'Create Job', search: 'Search', searchPlaceholder: '🔍 Search plate/advisor/job ID/outlet...', recentSearches: 'Recent Searches', clearHistory: 'Clear History', results: 'results', jobIdLabel: 'Job ID: ', report: 'Report', logout: 'Logout', pending: 'Pending', inspection: 'Inspection', washing: 'Washing', ready: 'Ready', paid: 'Paid', completed: 'Completed', exception: 'Exception', offline: 'Offline Mode - Sync on reconnect' },
+                    ms: { pageTitle: 'WASHFLOW — Papan Pemuka', dashboard: 'Papan Pemuka', create: 'Cipta Tempahan', search: 'Carian', searchPlaceholder: '🔍 Cari plat/penasihat/ID/cawangan...', recentSearches: 'Carian Terkini', clearHistory: 'Kosongkan Sejarah', results: 'hasil', jobIdLabel: 'ID kerja: ', report: 'Laporan', logout: 'Log Keluar', pending: 'Menunggu', inspection: 'Pemeriksaan', washing: 'Sedang Dicuci', ready: 'Sedia Diambil', paid: 'Dibayar', completed: 'Selesai', exception: 'Kecualian', offline: 'Mod Luar Talian - Sync bila sambung' }
                 },
 
                 initDashboard() {

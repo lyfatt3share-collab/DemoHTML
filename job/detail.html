@@ -52,7 +52,6 @@
 
         <p style="color:var(--text-secondary); margin-bottom:6px;">
             <span x-text="job.model"></span>
-            · <span x-text="job.color"></span>
             · <span x-text="job.type"></span>
         </p>
 
@@ -92,6 +91,19 @@
                 📝 <span x-text="t('remarkPrefix')"></span><span x-text="job.remark"></span>
             </div>
         </template>
+
+        <!-- Vehicle Photos -->
+        <div x-show="job.photos && job.photos.length > 0" style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+            <p style="font-size:13px; font-weight:500; margin-bottom:8px;" x-text="t('photosLabel')"></p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap:8px;">
+                <template x-for="(photo, idx) in job.photos" :key="idx">
+                    <div style="position:relative;">
+                        <img :src="photo.url" :alt="photo.caption || ''" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;" @click="openPhoto(photo.url)">
+                        <span x-show="photo.caption" style="position:absolute; bottom:4px; left:4px; right:4px; font-size:10px; background:rgba(0,0,0,0.6); color:white; padding:2px 4px; border-radius:3px; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;" x-text="photo.caption"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
     </div>
 
     <!-- 洗前阶段：非工人只读 -->
@@ -400,7 +412,6 @@
                 id: 'J001',
                 plate: 'B 1234 ABC',
                 model: 'Honda City',
-                color: 'White',
                 type: 'Sedan',
                 vehicleType: 'registration',
                 vehicleIdentifier: 'B 1234 ABC',
@@ -410,13 +421,16 @@
                 salesAdvisor: 'Ali Bin Ahmad',
                 serviceDateTime: '2026-05-11 09:15:00',
                 services: ['1', '2'],
+                photos: [
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Front', caption: 'Front' },
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Rear', caption: 'Rear' }
+                ],
                 status: 'inspection'
             },
             J002: {
                 id: 'J002',
                 plate: 'W 5678 XYZ',
                 model: 'Perodua Myvi',
-                color: 'Blue',
                 type: 'Hatchback',
                 vehicleType: 'registration',
                 vehicleIdentifier: 'W 5678 XYZ',
@@ -426,13 +440,15 @@
                 salesAdvisor: 'Raj Kumar',
                 serviceDateTime: '2026-05-11 10:00:00',
                 services: ['1'],
+                photos: [
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Side', caption: 'Side' }
+                ],
                 status: 'pending'
             },
             J003: {
                 id: 'J003',
                 plate: '',
                 model: 'Tesla Model 3',
-                color: 'Black',
                 type: 'Sedan',
                 vehicleType: 'chassis',
                 vehicleIdentifier: '5YJ3E1EA8PF000123',
@@ -442,13 +458,13 @@
                 salesAdvisor: 'David Wong',
                 serviceDateTime: '2026-05-11 11:30:00',
                 services: ['8', '13'],
+                photos: [],
                 status: 'washing'
             },
             J004: {
                 id: 'J004',
                 plate: 'P 7788 QRS',
                 model: 'Toyota Camry',
-                color: 'Silver',
                 type: 'Sedan',
                 vehicleType: 'registration',
                 vehicleIdentifier: 'P 7788 QRS',
@@ -458,6 +474,11 @@
                 salesAdvisor: 'Tan Wei Ming',
                 serviceDateTime: '2026-05-11 08:45:00',
                 services: ['1', '9', '11'],
+                photos: [
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Front', caption: 'Front' },
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Left', caption: 'Left' },
+                    { url: 'https://via.placeholder.com/300x200/E2E8F0/64748B?text=Right', caption: 'Right' }
+                ],
                 status: 'ready',
                 parkingBayNote: 'A12',
                 washCompletedAt: '2026-05-11 14:35:00'
@@ -472,6 +493,7 @@
                 outletLabel: '分行：',
                 salesAdvisorLabel: '销售顾问：',
                 servicesLabel: '服务项目',
+                photosLabel: '车辆照片',
                 remarkPrefix: '备注：',
                 dash: '—',
                 pending: '待处理',
@@ -557,6 +579,7 @@
                 outletLabel: 'Outlet: ',
                 salesAdvisorLabel: 'Sales Advisor: ',
                 servicesLabel: 'Services',
+                photosLabel: 'Vehicle Photos',
                 remarkPrefix: 'Note: ',
                 dash: '—',
                 pending: 'Pending',
@@ -642,6 +665,7 @@
                 outletLabel: 'Cawangan: ',
                 salesAdvisorLabel: 'Penasihat Jualan: ',
                 servicesLabel: 'Perkhidmatan',
+                photosLabel: 'Foto Kenderaan',
                 remarkPrefix: 'Nota: ',
                 dash: '—',
                 pending: 'Menunggu',
@@ -759,6 +783,10 @@
 
                 getServiceName(code) {
                     return SERVICE_MAP[code] || code;
+                },
+
+                openPhoto(url) {
+                    window.open(url, '_blank');
                 },
 
                 localeForDates() {
